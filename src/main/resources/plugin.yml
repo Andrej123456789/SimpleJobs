@@ -2,3 +2,10 @@ name: SimpleJobs
 version: '${project.version}'
 main: me.andrej123456789.simplejobs.SimpleJobs
 api-version: '1.19'
+
+commands:
+  jobs_admin:
+      description: Admin command for SimpleJobs plugin
+      usage: '/jobs_admin <arg>'
+      permission: simplejobs.jobs
+      permission-message: '&cYou do not have permission to use this command'

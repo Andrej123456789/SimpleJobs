@@ -53,6 +53,6 @@ public class Copper implements Listener {
             weight = 3;
         }
 
-        Bukkit.getLogger().info(Integer.toString(weight));
+        Bukkit.getLogger().info(Config.get().getString("copper"));
     }
 }

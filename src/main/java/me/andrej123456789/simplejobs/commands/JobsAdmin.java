@@ -1,7 +1,6 @@
 package me.andrej123456789.simplejobs.commands;
 
 import me.andrej123456789.simplejobs.Config;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,6 +15,10 @@ import java.util.List;
 public class JobsAdmin implements CommandExecutor, TabExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (args == null) {
+            return false;
+        }
+
         switch (args[0]) {
             case "reload":
                 Config.reload();
