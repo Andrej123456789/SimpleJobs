@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SimpleJobs:jar">
+    <output-path>$USER_HOME$/Documents/Minecraft/City/Paper/plugins</output-path>
+    <root id="archive" name="SimpleJobs.jar">
+      <element id="module-output" name="SimpleJobs" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,4 @@
+name: SimpleJobs
+version: '1.0-SNAPSHOT'
+main: me.andrej123456789.simplejobs.SimpleJobs
+api-version: '1.19'
