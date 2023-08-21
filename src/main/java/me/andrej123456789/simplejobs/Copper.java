@@ -41,16 +41,18 @@ public class Copper implements Listener {
 
         int weight = 0;
 
-        if (EXPOSED.contains(clicked.getType())) {
-            weight = 1;
-        }
-
-        if (WEATHERED.contains(clicked.getType())) {
-            weight = 2;
-        }
-
-        if (OXIDIZED.contains(clicked.getType())) {
-            weight = 3;
+        switch (clicked.getType()) {
+            case EXPOSED:
+                weight = 1;
+                break;
+            case WEATHERED:
+                weight = 2;
+                break;
+            case OXIDIZED:
+                weight = 3;
+                break;
+            default:
+                break;
         }
 
         Bukkit.getLogger().info(Integer.toString(weight));
