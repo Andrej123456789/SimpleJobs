@@ -1,6 +1,7 @@
-package me.andrej123456789.simplejobs;
+package me.andrej123456789.simplejobs.jobs;
 
-import org.bukkit.Bukkit;
+import me.andrej123456789.simplejobs.SimpleJobs;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -10,6 +11,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 
@@ -18,6 +21,8 @@ public class Copper implements Listener {
     private static final List<Material> WEATHERED = List.of(Material.WEATHERED_COPPER, Material.WEATHERED_CUT_COPPER, Material.WEATHERED_CUT_COPPER_SLAB, Material.WEATHERED_CUT_COPPER_STAIRS);
 
     private static final List<Material> OXIDIZED = List.of(Material.OXIDIZED_COPPER, Material.OXIDIZED_CUT_COPPER, Material.OXIDIZED_CUT_COPPER_SLAB, Material.OXIDIZED_CUT_COPPER_SLAB);
+
+    private static final Plugin plugin = JavaPlugin.getProvidingPlugin(SimpleJobs.class);
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
@@ -53,6 +58,6 @@ public class Copper implements Listener {
             weight = 3;
         }
 
-        Bukkit.getLogger().info(Config.get().getString("copper"));
+        player.sendMessage(plugin.getConfig().getString("github"));
     }
 }
