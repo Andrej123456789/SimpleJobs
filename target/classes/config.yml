@@ -1,1 +1,18 @@
 github: 'https://github.com/Andrej123456789/SimpleJobs'
+
+jobs:
+  scrape_copper_peaceful:
+    blocks_to_do: 100
+    timeout: '2592000'        # (in seconds)
+    duration: '1'             # (in days - how much blocks to do in one day)
+    prices:
+      price_final: 0          # if zero, final price is calculated by other factors (e.g. exposed block, weathered block, ...)
+      exposed_block: 0.02
+      weathered_block: 0.04
+      oxidized_block: 0.06
+    players:
+      # Player1:
+        # last-finished: ''     (exact time)
+        # started: ''           (exact time)
+        # days_done: []
+        # blocks_done:
