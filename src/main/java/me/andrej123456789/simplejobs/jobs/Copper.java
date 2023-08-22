@@ -58,6 +58,6 @@ public class Copper implements Listener {
             weight = 3;
         }
 
-        player.sendMessage(plugin.getConfig().getString("github"));
+        player.sendMessage(Double.toString(plugin.getConfig().getDouble("jobs.scrape_copper_peaceful.prices.price_final")));
     }
 }
