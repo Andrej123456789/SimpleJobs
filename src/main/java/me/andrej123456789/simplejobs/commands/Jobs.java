@@ -15,13 +15,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Jobs implements CommandExecutor, TabExecutor {
     private static final Plugin plugin = JavaPlugin.getProvidingPlugin(SimpleJobs.class);
+
+    private static Set<String> getJobs() {
+        return plugin.getConfig().getConfigurationSection("jobs").getKeys(false);
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -35,6 +36,16 @@ public class Jobs implements CommandExecutor, TabExecutor {
 
         switch (args[0]) {
             case "accept":
+                Set<String> jobs = getJobs();
+                if (jobs == null) {
+                    sender.sendMessage(ChatColor.RED + "No jobs have been found!");
+                    break;
+                }
+
+                if (!jobs.contains(args[1])) {
+                    sender.sendMessage(ChatColor.YELLOW + "Requested job does not exist!");
+                    break;
+                }
 
                 ConfigurationSection root_section = plugin.getConfig().getConfigurationSection("jobs.scrape_copper_peaceful.players");
                 if (root_section == null) {
@@ -48,9 +59,13 @@ public class Jobs implements CommandExecutor, TabExecutor {
                     break;
                 }
 
+                Map<String, Object> new_section = new HashMap<>();
                 for (String i : example_section.getKeys(false)) {
-                    sender.sendMessage(i);
+                    new_section.put(i, example_section.get(i));
                 }
+
+                plugin.getConfig().createSection("jobs." + args[1] + ".players." + sender.getName(), new_section);
+                plugin.saveConfig();
 
                 break;
 
