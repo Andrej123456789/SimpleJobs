@@ -11,8 +11,8 @@ jobs:
       weathered_block: 0.04
       oxidized_block: 0.06
     players:
-      # Player1:
-        # last-finished: ''     (exact time)
-        # started: ''           (exact time)
-        # days_done: []
-        # blocks_done:
+      Player1:
+        last-finished: ''     # (exact time)
+        started: ''           # (exact time)
+        days_done: []
+        blocks_done: 0

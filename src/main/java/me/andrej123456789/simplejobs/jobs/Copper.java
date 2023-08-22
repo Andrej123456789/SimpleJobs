@@ -4,6 +4,7 @@ import me.andrej123456789.simplejobs.SimpleJobs;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -57,7 +58,5 @@ public class Copper implements Listener {
         if (OXIDIZED.contains(clicked.getType())) {
             weight = 3;
         }
-
-        player.sendMessage(Double.toString(plugin.getConfig().getDouble("jobs.scrape_copper_peaceful.prices.price_final")));
     }
 }

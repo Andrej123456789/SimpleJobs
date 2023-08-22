@@ -7,5 +7,11 @@ commands:
   jobs_admin:
       description: Admin command for SimpleJobs plugin
       usage: '/jobs_admin <arg>'
-      permission: simplejobs.jobs
+      permission: simplejobs.admin
       permission-message: '&cYou do not have permission to use this command'
+
+  jobs:
+    description: Main command for SimpleJobs plugin
+    usage: '/jobs_admin <arg>'
+    permission: simplejobs.jobs
+    permission-message: '&cYou do not have permission to use this command'
