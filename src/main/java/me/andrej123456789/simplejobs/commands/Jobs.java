@@ -15,7 +15,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Jobs implements CommandExecutor, TabExecutor {
     private static final Plugin plugin = JavaPlugin.getProvidingPlugin(SimpleJobs.class);
@@ -89,7 +94,7 @@ public class Jobs implements CommandExecutor, TabExecutor {
         }
 
         if (args.length == 2) {
-            return Arrays.asList("scrape_copper_peaceful");
+            return new ArrayList<>(getJobs());
         }
 
         return new ArrayList<>(); /* null = all player names */
