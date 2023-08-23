@@ -2,6 +2,7 @@ package me.andrej123456789.simplejobs.jobs;
 
 import me.andrej123456789.simplejobs.SimpleJobs;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -45,18 +46,72 @@ public class Copper implements Listener {
         if (hand == null || hand.getType() != Material.NETHERITE_AXE)
             return;
 
-        int weight = 0;
+        ConfigurationSection jobs = plugin.getConfig().getConfigurationSection("jobs");
 
-        if (EXPOSED.contains(clicked.getType())) {
-            weight = 1;
+        String job = "";
+        boolean accepted = false;
+
+        for (String _job : jobs.getKeys(false)) {
+            ConfigurationSection players = jobs.getConfigurationSection(_job + ".players");
+
+            if (players.getKeys(false).contains(player.getName())) {
+                job = _job;
+                accepted = true;
+
+                break;
+            }
         }
 
-        if (WEATHERED.contains(clicked.getType())) {
-            weight = 2;
+        if (!accepted) {
+            return;
         }
 
-        if (OXIDIZED.contains(clicked.getType())) {
-            weight = 3;
+        if (job.equalsIgnoreCase("scrape_copper_peaceful")) {
+            if (EXPOSED.contains(clicked.getType())) {
+                if (plugin.getConfig().getDouble("jobs." + job + ".prices.price_final") == 0.00) {
+                    double value = plugin.getConfig().getDouble("jobs." + job + ".players." + player.getName() + ".current_price");
+                    value += plugin.getConfig().getDouble("jobs." + job + ".prices.exposed_block");
+
+                    plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".current_price", value);
+                    plugin.saveConfig();
+                }
+
+                int blocks_done = plugin.getConfig().getInt("jobs." + job + ".players." + player.getName() + ".blocks_done");
+                plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".blocks_done", blocks_done += 1);
+
+                plugin.saveConfig();
+            }
+
+            if (WEATHERED.contains(clicked.getType())) {
+                if (plugin.getConfig().getDouble("jobs." + job + ".prices.price_final") == 0.00) {
+                    double value = plugin.getConfig().getDouble("jobs." + job + ".players." + player.getName() + ".current_price");
+                    value += plugin.getConfig().getDouble("jobs." + job + ".prices.weathered_block");
+
+                    plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".current_price", value);
+                    plugin.saveConfig();
+                }
+
+                int blocks_done = plugin.getConfig().getInt("jobs." + job + ".players." + player.getName() + ".blocks_done");
+                plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".blocks_done", blocks_done += 1);
+
+                plugin.saveConfig();
+            }
+
+            if (OXIDIZED.contains(clicked.getType())) {
+                if (plugin.getConfig().getDouble("jobs." + job + ".prices.price_final") == 0.00) {
+
+                    double value = plugin.getConfig().getDouble("jobs." + job + ".players." + player.getName() + ".current_price");
+                    value += plugin.getConfig().getDouble("jobs." + job + ".prices.oxidized_block");
+
+                    plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".current_price", value);
+                    plugin.saveConfig();
+                }
+
+                int blocks_done = plugin.getConfig().getInt("jobs." + job + ".players." + player.getName() + ".blocks_done");
+                plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".blocks_done", blocks_done += 1);
+
+                plugin.saveConfig();
+            }
         }
     }
 }
