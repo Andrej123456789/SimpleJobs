@@ -1,11 +1,13 @@
 # SimpleJobs
-Simple Paper plugin which implements jobs!
+Simple Minecraft plugin which implements jobs!
 
 Version: 1.19.4+
 
 ## TODO
 - [ ] Built-in jobs
-- [ ] YAML (or JSON) support
+  - [ ] Scraping copper
+  - [ ] Mining jobs
+- [x] YAML support
 - [ ] Permissions
 - [ ] Placeholders
     - [ ] Custom placeholders

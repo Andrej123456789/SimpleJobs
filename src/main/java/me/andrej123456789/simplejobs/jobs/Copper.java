@@ -66,52 +66,73 @@ public class Copper implements Listener {
             return;
         }
 
-        if (job.equalsIgnoreCase("scrape_copper_peaceful")) {
-            if (EXPOSED.contains(clicked.getType())) {
-                if (plugin.getConfig().getDouble("jobs." + job + ".prices.price_final") == 0.00) {
-                    double value = plugin.getConfig().getDouble("jobs." + job + ".players." + player.getName() + ".current_price");
-                    value += plugin.getConfig().getDouble("jobs." + job + ".prices.exposed_block");
+        final String job_path = "jobs." + job;
 
-                    plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".current_price", value);
-                    plugin.saveConfig();
-                }
+        if (EXPOSED.contains(clicked.getType())) {
+            if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
+                double value = plugin.getConfig().getDouble(job_path + ".players." + player.getName() + ".current_price");
+                value += plugin.getConfig().getDouble(job_path + ".prices.exposed_block");
 
-                int blocks_done = plugin.getConfig().getInt("jobs." + job + ".players." + player.getName() + ".blocks_done");
-                plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".blocks_done", blocks_done += 1);
-
+                plugin.getConfig().set(job_path + ".players." + player.getName() + ".current_price", value);
                 plugin.saveConfig();
             }
 
-            if (WEATHERED.contains(clicked.getType())) {
-                if (plugin.getConfig().getDouble("jobs." + job + ".prices.price_final") == 0.00) {
-                    double value = plugin.getConfig().getDouble("jobs." + job + ".players." + player.getName() + ".current_price");
-                    value += plugin.getConfig().getDouble("jobs." + job + ".prices.weathered_block");
+            int blocks_done = plugin.getConfig().getInt(job_path + ".players." + player.getName() + ".blocks_done");
+            plugin.getConfig().set(job_path + ".players." + player.getName() + ".blocks_done", blocks_done += 3);
 
-                    plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".current_price", value);
-                    plugin.saveConfig();
-                }
+            plugin.saveConfig();
+        }
 
-                int blocks_done = plugin.getConfig().getInt("jobs." + job + ".players." + player.getName() + ".blocks_done");
-                plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".blocks_done", blocks_done += 1);
+        if (WEATHERED.contains(clicked.getType())) {
+            if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
+                double value = plugin.getConfig().getDouble(job_path + ".players." + player.getName() + ".current_price");
+                value += plugin.getConfig().getDouble(job_path + ".prices.weathered_block");
 
+                plugin.getConfig().set(job_path + ".players." + player.getName() + ".current_price", value);
                 plugin.saveConfig();
             }
 
-            if (OXIDIZED.contains(clicked.getType())) {
-                if (plugin.getConfig().getDouble("jobs." + job + ".prices.price_final") == 0.00) {
+            int blocks_done = plugin.getConfig().getInt(job_path + ".players." + player.getName() + ".blocks_done");
+            plugin.getConfig().set(job_path + ".players." + player.getName() + ".blocks_done", blocks_done += 2);
 
-                    double value = plugin.getConfig().getDouble("jobs." + job + ".players." + player.getName() + ".current_price");
-                    value += plugin.getConfig().getDouble("jobs." + job + ".prices.oxidized_block");
+            plugin.saveConfig();
+        }
 
-                    plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".current_price", value);
-                    plugin.saveConfig();
-                }
+        if (OXIDIZED.contains(clicked.getType())) {
+            if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
 
-                int blocks_done = plugin.getConfig().getInt("jobs." + job + ".players." + player.getName() + ".blocks_done");
-                plugin.getConfig().set("jobs." + job + ".players." + player.getName() + ".blocks_done", blocks_done += 1);
+                double value = plugin.getConfig().getDouble(job_path + ".players." + player.getName() + ".current_price");
+                value += plugin.getConfig().getDouble(job_path + ".prices.oxidized_block");
 
+                plugin.getConfig().set(job_path + ".players." + player.getName() + ".current_price", value);
                 plugin.saveConfig();
             }
+
+            int blocks_done = plugin.getConfig().getInt(job_path + ".players." + player.getName() + ".blocks_done");
+            plugin.getConfig().set(job_path + ".players." + player.getName() + ".blocks_done", blocks_done += 1);
+
+            plugin.saveConfig();
+        }
+
+        /* Player can scrape oxidized block and then leave it in weathered state.
+           You removed the worst state, and you got money; but I'll make sure you don't leave your job unfinished */
+
+        if (plugin.getConfig().getInt(job_path + ".players." + player.getName() + ".blocks_done") == plugin.getConfig().getInt(job_path + ".blocks_to_do")) {
+            // TODO
+            // implement days
+
+            // TODO
+            // hook into Vault and give player money
+
+            player.sendMessage(ChatColor.GREEN + "Congrats, you finished your job!");
+            player.sendMessage(ChatColor.GREEN + "Your reward: " + ChatColor.DARK_GREEN + Double.toString(plugin.getConfig().getDouble(job_path + ".players." + player.getName() + ".current_price")));
+
+            plugin.getConfig().set(job_path + ".players." + player.getName() + ".last_finished", "");
+
+            plugin.getConfig().set(job_path + ".players." + player.getName() + ".blocks_done", 0);
+            plugin.getConfig().set(job_path + ".players." + player.getName() + ".current_price", 0.00);
+
+            plugin.saveConfig();
         }
     }
 }
