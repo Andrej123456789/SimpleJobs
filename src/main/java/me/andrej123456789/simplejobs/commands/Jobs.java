@@ -15,6 +15,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,9 +80,13 @@ public class Jobs implements CommandExecutor, TabExecutor {
                     new_section.put(i, example_section.get(i));
                 }
 
-                plugin.getConfig().createSection("jobs." + args[1] + ".players." + sender.getName(), new_section);
-                plugin.saveConfig();
+                DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
+                LocalDateTime now = LocalDateTime.now();
 
+                plugin.getConfig().createSection("jobs." + args[1] + ".players." + sender.getName(), new_section);
+                plugin.getConfig().set("jobs." + args[1] + ".players." + sender.getName() + ".started", dtf.format(now));
+
+                plugin.saveConfig();
                 break;
 
             case "status":

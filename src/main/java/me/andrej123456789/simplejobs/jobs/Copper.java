@@ -16,6 +16,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 public class Copper implements Listener {
@@ -118,21 +122,31 @@ public class Copper implements Listener {
         /* Player can scrape oxidized block and then leave it in weathered state.
            You removed the worst state, and you got money; but I'll make sure you don't leave your job unfinished */
 
-        if (plugin.getConfig().getInt(job_path + players_path + ".blocks_done") == plugin.getConfig().getInt(job_path + ".blocks_to_do")) {
-            // TODO
-            // implement days
+        if (plugin.getConfig().getInt(job_path + players_path + ".blocks_done") >= plugin.getConfig().getInt(job_path + ".blocks_to_do")) {
+            DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
 
-            // TODO
-            // hook into Vault and give player money
+            LocalDate date1 = LocalDate.parse(plugin.getConfig().getString(job_path + players_path + ".started"), dtf);
+            LocalDate date2 = LocalDate.now();
 
-            player.sendMessage(ChatColor.GREEN + "Congrats, you finished your job!");
-            player.sendMessage(ChatColor.GREEN + "Your reward: " + ChatColor.DARK_GREEN + Double.toString(plugin.getConfig().getDouble(job_path + players_path + ".current_price")));
+            if (ChronoUnit.DAYS.between(date1, date2) == plugin.getConfig().getLong(job_path + ".duration")) {
+                // TODO
+                // hook into Vault and give player money
 
-            plugin.getConfig().set(job_path + players_path + ".last_finished", "");
+                player.sendMessage(ChatColor.GREEN + "Congrats, you finished your job!");
+                player.sendMessage(ChatColor.GREEN + "Your reward: " + ChatColor.DARK_GREEN + Double.toString(plugin.getConfig().getDouble(job_path + players_path + ".current_price")));
+
+                plugin.getConfig().set(job_path + players_path + ".last_finished", dtf.format(LocalDate.now()));
+                plugin.getConfig().set(job_path + players_path + ".started", "");
+
+                plugin.getConfig().set(job_path + players_path + ".blocks_done", 0);
+                plugin.getConfig().set(job_path + players_path + ".current_price", 0.00);
+
+                plugin.saveConfig();
+            }
+
+            player.sendMessage(ChatColor.GREEN + "You finished for today!");
 
             plugin.getConfig().set(job_path + players_path + ".blocks_done", 0);
-            plugin.getConfig().set(job_path + players_path + ".current_price", 0.00);
-
             plugin.saveConfig();
         }
     }
