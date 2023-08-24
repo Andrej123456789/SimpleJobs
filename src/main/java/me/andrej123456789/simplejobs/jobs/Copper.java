@@ -67,33 +67,34 @@ public class Copper implements Listener {
         }
 
         final String job_path = "jobs." + job;
+        final String players_path = ".players." + player.getName();
 
         if (EXPOSED.contains(clicked.getType())) {
             if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
-                double value = plugin.getConfig().getDouble(job_path + ".players." + player.getName() + ".current_price");
+                double value = plugin.getConfig().getDouble(job_path + players_path + ".current_price");
                 value += plugin.getConfig().getDouble(job_path + ".prices.exposed_block");
 
-                plugin.getConfig().set(job_path + ".players." + player.getName() + ".current_price", value);
+                plugin.getConfig().set(job_path + players_path + ".current_price", value);
                 plugin.saveConfig();
             }
 
-            int blocks_done = plugin.getConfig().getInt(job_path + ".players." + player.getName() + ".blocks_done");
-            plugin.getConfig().set(job_path + ".players." + player.getName() + ".blocks_done", blocks_done += 3);
+            int blocks_done = plugin.getConfig().getInt(job_path + players_path + ".blocks_done");
+            plugin.getConfig().set(job_path + players_path + ".blocks_done", blocks_done += 3);
 
             plugin.saveConfig();
         }
 
         if (WEATHERED.contains(clicked.getType())) {
             if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
-                double value = plugin.getConfig().getDouble(job_path + ".players." + player.getName() + ".current_price");
+                double value = plugin.getConfig().getDouble(job_path + players_path + ".current_price");
                 value += plugin.getConfig().getDouble(job_path + ".prices.weathered_block");
 
-                plugin.getConfig().set(job_path + ".players." + player.getName() + ".current_price", value);
+                plugin.getConfig().set(job_path + players_path + ".current_price", value);
                 plugin.saveConfig();
             }
 
-            int blocks_done = plugin.getConfig().getInt(job_path + ".players." + player.getName() + ".blocks_done");
-            plugin.getConfig().set(job_path + ".players." + player.getName() + ".blocks_done", blocks_done += 2);
+            int blocks_done = plugin.getConfig().getInt(job_path + players_path + ".blocks_done");
+            plugin.getConfig().set(job_path + players_path + ".blocks_done", blocks_done += 2);
 
             plugin.saveConfig();
         }
@@ -101,15 +102,15 @@ public class Copper implements Listener {
         if (OXIDIZED.contains(clicked.getType())) {
             if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
 
-                double value = plugin.getConfig().getDouble(job_path + ".players." + player.getName() + ".current_price");
+                double value = plugin.getConfig().getDouble(job_path + players_path + ".current_price");
                 value += plugin.getConfig().getDouble(job_path + ".prices.oxidized_block");
 
-                plugin.getConfig().set(job_path + ".players." + player.getName() + ".current_price", value);
+                plugin.getConfig().set(job_path + players_path + ".current_price", value);
                 plugin.saveConfig();
             }
 
-            int blocks_done = plugin.getConfig().getInt(job_path + ".players." + player.getName() + ".blocks_done");
-            plugin.getConfig().set(job_path + ".players." + player.getName() + ".blocks_done", blocks_done += 1);
+            int blocks_done = plugin.getConfig().getInt(job_path + players_path + ".blocks_done");
+            plugin.getConfig().set(job_path + players_path + ".blocks_done", blocks_done += 1);
 
             plugin.saveConfig();
         }
@@ -117,7 +118,7 @@ public class Copper implements Listener {
         /* Player can scrape oxidized block and then leave it in weathered state.
            You removed the worst state, and you got money; but I'll make sure you don't leave your job unfinished */
 
-        if (plugin.getConfig().getInt(job_path + ".players." + player.getName() + ".blocks_done") == plugin.getConfig().getInt(job_path + ".blocks_to_do")) {
+        if (plugin.getConfig().getInt(job_path + players_path + ".blocks_done") == plugin.getConfig().getInt(job_path + ".blocks_to_do")) {
             // TODO
             // implement days
 
@@ -125,12 +126,12 @@ public class Copper implements Listener {
             // hook into Vault and give player money
 
             player.sendMessage(ChatColor.GREEN + "Congrats, you finished your job!");
-            player.sendMessage(ChatColor.GREEN + "Your reward: " + ChatColor.DARK_GREEN + Double.toString(plugin.getConfig().getDouble(job_path + ".players." + player.getName() + ".current_price")));
+            player.sendMessage(ChatColor.GREEN + "Your reward: " + ChatColor.DARK_GREEN + Double.toString(plugin.getConfig().getDouble(job_path + players_path + ".current_price")));
 
-            plugin.getConfig().set(job_path + ".players." + player.getName() + ".last_finished", "");
+            plugin.getConfig().set(job_path + players_path + ".last_finished", "");
 
-            plugin.getConfig().set(job_path + ".players." + player.getName() + ".blocks_done", 0);
-            plugin.getConfig().set(job_path + ".players." + player.getName() + ".current_price", 0.00);
+            plugin.getConfig().set(job_path + players_path + ".blocks_done", 0);
+            plugin.getConfig().set(job_path + players_path + ".current_price", 0.00);
 
             plugin.saveConfig();
         }
