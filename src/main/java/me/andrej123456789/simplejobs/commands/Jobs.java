@@ -32,11 +32,19 @@ public class Jobs implements CommandExecutor, TabExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length < 2) {
-            return false;
+            sender.sendMessage(ChatColor.YELLOW + "Too few arguments!");
+            sender.sendMessage("Usage: /jobs <subcommand> <argument>");
+            return true;
         }
 
         if (!(sender instanceof Player)) {
             sender.sendMessage("Only in-game players can execute this command!");
+            return true;
+        }
+
+        if (!sender.hasPermission("simplejobs.jobs")) {
+            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command");
+            return true;
         }
 
         switch (args[0]) {
@@ -80,8 +88,13 @@ public class Jobs implements CommandExecutor, TabExecutor {
             case "quit":
                 break;
 
+            case "help":
+                sender.sendMessage("Supported arguments: 'accept', 'status', 'quit', 'help'");
+                break;
+
             default:
-                return false;
+                sender.sendMessage(ChatColor.YELLOW + "Type /jobs help to see list of supported arguments!");
+                break;
         }
 
         return true;
@@ -90,7 +103,7 @@ public class Jobs implements CommandExecutor, TabExecutor {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("accept", "status", "quit");
+            return Arrays.asList("accept", "status", "quit", "help");
         }
 
         if (args.length == 2) {

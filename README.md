@@ -3,12 +3,22 @@ Simple Minecraft plugin which implements jobs!
 
 Version: 1.19.4+
 
+## How to use
+- *COMING SOON*
+
+### Permissions
+- `simplejobs.jobs` - for accessing jobs (players)
+- `simplejobs.admin` - for controlling jobs (administrators)
+
+### Placeholders:
+- *COMING SOON*
+
 ## TODO
 - [ ] Built-in jobs
   - [ ] Scraping copper
   - [ ] Mining jobs
 - [x] YAML support
-- [ ] Permissions
+- [X] Permissions
 - [ ] Placeholders
     - [ ] Custom placeholders
     - [ ] PlaceholderAPI's placeholders

@@ -27,6 +27,11 @@ public class JobsAdmin implements CommandExecutor, TabExecutor {
             return false;
         }
 
+        if (!sender.hasPermission("simplejobs.admin")) {
+            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command");
+            return true;
+        }
+
         switch (args[0]) {
             case "reload":
                 plugin.reloadConfig();
@@ -41,7 +46,8 @@ public class JobsAdmin implements CommandExecutor, TabExecutor {
                 break;
 
             default:
-                return false;
+                sender.sendMessage(ChatColor.YELLOW + "Type /jobs_admin help to see list of supported arguments!");
+                break;
         }
 
         return true;
