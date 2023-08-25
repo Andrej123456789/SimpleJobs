@@ -20,7 +20,7 @@ public final class SimpleJobs extends JavaPlugin {
         getCommand("jobs").setExecutor(new Jobs());
 
         getLogger().info("Initialization of ExecSigns is done!");
-        getServer().getConsoleSender().sendMessage("If you like this plugin, give it a star on Github: " + ChatColor.AQUA + getConfig().getString("github"));
+        getServer().getConsoleSender().sendMessage("[SimpleJobs] If you like this plugin, give it a star on Github: " + ChatColor.AQUA + getConfig().getString("github"));
     }
 
     @Override

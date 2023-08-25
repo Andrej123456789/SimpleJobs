@@ -15,7 +15,6 @@ jobs:
         last-finished: ''     # (exact time)
         started: ''           # (exact time)
         current_price: 0.00
-        days_done: []
         blocks_done: 0
   scrape_copper_easy:
     blocks_to_do: 100
@@ -31,7 +30,6 @@ jobs:
         last-finished: ''     # (exact time)
         started: ''           # (exact time)
         current_price: 0.00
-        days_done: [ ]
         blocks_done: 0
   scrape_copper_medium:
     blocks_to_do: 1000
@@ -47,7 +45,6 @@ jobs:
         last-finished: ''     # (exact time)
         started: ''           # (exact time)
         current_price: 0.00
-        days_done: [ ]
         blocks_done: 0
   scrape_copper_hard:
     blocks_to_do: 10000
@@ -63,7 +60,6 @@ jobs:
         last-finished: ''     # (exact time)
         started: ''           # (exact time)
         current_price: 0.00
-        days_done: [ ]
         blocks_done: 0
   scrape_copper_extreme:
     blocks_to_do: 100000
@@ -79,5 +75,4 @@ jobs:
         last-finished: ''     # (exact time)
         started: ''           # (exact time)
         current_price: 0.00
-        days_done: [ ]
         blocks_done: 0
