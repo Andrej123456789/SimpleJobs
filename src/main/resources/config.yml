@@ -4,7 +4,7 @@ jobs:
   scrape_copper_peaceful:
     blocks_to_do: 100
     timeout: '2592000'        # (in seconds)
-    duration: '1'             # (in days - how much blocks to do in one day)
+    duration: 1               # (in days - how much blocks to do in one day)
     prices:
       price_final: 0.00       # if zero, final price is calculated by other factors (e.g. exposed block, weathered block, ...)
       exposed_block: 0.02
@@ -12,14 +12,14 @@ jobs:
       oxidized_block: 0.06
     players:                  # Do not touch Player1
       Player1:
-        last-finished: ''     # (exact time)
+        last_finished: ''     # (exact time)
         started: ''           # (exact time)
         current_price: 0.00
         blocks_done: 0
   scrape_copper_easy:
     blocks_to_do: 100
     timeout: '172800'         # (in seconds)
-    duration: '30'            # (in days - how much blocks to do in one day)
+    duration: 30              # (in days - how much blocks to do in one day)
     prices:
       price_final: 0.00       # if zero, final price is calculated by other factors (e.g. exposed block, weathered block, ...)
       exposed_block: 0.02
@@ -27,14 +27,14 @@ jobs:
       oxidized_block: 0.06
     players: # Do not touch Player1
       Player1:
-        last-finished: ''     # (exact time)
+        last_finished: ''     # (exact time)
         started: ''           # (exact time)
         current_price: 0.00
         blocks_done: 0
   scrape_copper_medium:
     blocks_to_do: 1000
     timeout: '172800'         # (in seconds)
-    duration: '30'            # (in days - how much blocks to do in one day)
+    duration: 30              # (in days - how much blocks to do in one day)
     prices:
       price_final: 0.00       # if zero, final price is calculated by other factors (e.g. exposed block, weathered block, ...)
       exposed_block: 0.02
@@ -42,14 +42,14 @@ jobs:
       oxidized_block: 0.06
     players: # Do not touch Player1
       Player1:
-        last-finished: ''     # (exact time)
+        last_finished: ''     # (exact time)
         started: ''           # (exact time)
         current_price: 0.00
         blocks_done: 0
   scrape_copper_hard:
     blocks_to_do: 10000
     timeout: '172800'         # (in seconds)
-    duration: '30'            # (in days - how much blocks to do in one day)
+    duration: 30              # (in days - how much blocks to do in one day)
     prices:
       price_final: 0.00       # if zero, final price is calculated by other factors (e.g. exposed block, weathered block, ...)
       exposed_block: 0.02
@@ -57,14 +57,14 @@ jobs:
       oxidized_block: 0.06
     players: # Do not touch Player1
       Player1:
-        last-finished: ''     # (exact time)
+        last_finished: ''     # (exact time)
         started: ''           # (exact time)
         current_price: 0.00
         blocks_done: 0
   scrape_copper_extreme:
     blocks_to_do: 100000
     timeout: '172800'         # (in seconds)
-    duration: '30'            # (in days - how much blocks to do in one day)
+    duration: 30              # (in days - how much blocks to do in one day)
     prices:
       price_final: 0.00       # if zero, final price is calculated by other factors (e.g. exposed block, weathered block, ...)
       exposed_block: 0.02
@@ -72,7 +72,7 @@ jobs:
       oxidized_block: 0.06
     players: # Do not touch Player1
       Player1:
-        last-finished: ''     # (exact time)
+        last_finished: ''     # (exact time)
         started: ''           # (exact time)
         current_price: 0.00
         blocks_done: 0

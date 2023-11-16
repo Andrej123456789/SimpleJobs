@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 
 public class Copper implements Listener {
     private static final List<Material> EXPOSED = List.of(Material.EXPOSED_COPPER, Material.EXPOSED_CUT_COPPER, Material.EXPOSED_CUT_COPPER_SLAB, Material.EXPOSED_CUT_COPPER_STAIRS);
@@ -126,10 +127,12 @@ public class Copper implements Listener {
         if (plugin.getConfig().getInt(job_path + players_path + ".blocks_done") >= plugin.getConfig().getInt(job_path + ".blocks_to_do")) {
             DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
 
-            LocalDate date1 = LocalDate.parse(plugin.getConfig().getString(job_path + players_path + ".started"), dtf);
+            LocalDate date1 = LocalDate.parse(Objects.requireNonNull(plugin.getConfig().getString(job_path + players_path + ".started")), dtf);
             LocalDate date2 = LocalDate.now();
 
-            if (ChronoUnit.DAYS.between(date1, date2) == plugin.getConfig().getLong(job_path + ".duration")) {
+            plugin.getLogger().info(ChronoUnit.DAYS.between(date1, date2) + " | " + plugin.getConfig().getLong(job_path + ".duration"));
+
+            if (ChronoUnit.DAYS.between(date1, date2) >= plugin.getConfig().getLong(job_path + ".duration")) {
                 getEconomy().depositPlayer(player, plugin.getConfig().getDouble(job_path + players_path + ".current_price"));
 
                 player.sendMessage(ChatColor.GREEN + "Congrats, you finished your job!");
