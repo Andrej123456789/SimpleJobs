@@ -1,6 +1,7 @@
 package me.andrej123456789.simplejobs.jobs;
 
 import me.andrej123456789.simplejobs.SimpleJobs;
+import static me.andrej123456789.simplejobs.SimpleJobs.getEconomy;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -129,8 +130,7 @@ public class Copper implements Listener {
             LocalDate date2 = LocalDate.now();
 
             if (ChronoUnit.DAYS.between(date1, date2) == plugin.getConfig().getLong(job_path + ".duration")) {
-                // TODO
-                // hook into Vault and give player money
+                getEconomy().depositPlayer(player, plugin.getConfig().getDouble(job_path + players_path + ".current_price"));
 
                 player.sendMessage(ChatColor.GREEN + "Congrats, you finished your job!");
                 player.sendMessage(ChatColor.GREEN + "Your reward: " + ChatColor.DARK_GREEN + Double.toString(plugin.getConfig().getDouble(job_path + players_path + ".current_price")));
