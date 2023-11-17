@@ -16,8 +16,6 @@ import net.milkbowl.vault.permission.Permission;
 public final class SimpleJobs extends JavaPlugin {
 
     private static Economy econ = null;
-    private static Permission perms = null;
-    private static Chat chat = null;
 
     @Override
     public void onEnable() {
