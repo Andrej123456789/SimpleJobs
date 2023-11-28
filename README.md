@@ -14,7 +14,7 @@ Dependencies: [Vault](https://www.spigotmc.org/resources/vault.34315/)
 - `simplejobs.admin` - for controlling jobs (administrators)
 
 #### For staff team
-- `simeplejobs.staff_jobs.[job]` - replace `[job]` with actual job
+- `simeplejobs.jobs.staff` - for accessing staff jobs (staff team)
 
 ### Placeholders:
 - *COMING SOON*

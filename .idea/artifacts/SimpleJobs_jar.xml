@@ -3,6 +3,8 @@
     <output-path>$USER_HOME$/Documents/Minecraft/City/Paper/plugins</output-path>
     <root id="archive" name="SimpleJobs.jar">
       <element id="module-output" name="SimpleJobs" />
+      <element id="library" level="project" name="Maven: com.electronwill.night-config:core:3.6.7" />
+      <element id="library" level="project" name="Maven: com.electronwill.night-config:toml:3.6.7" />
     </root>
   </artifact>
 </component>
