@@ -1,5 +1,6 @@
 package me.andrej123456789.simplejobs.commands;
 
+import com.moandjiezana.toml.TomlWriter;
 import me.andrej123456789.simplejobs.SimpleJobs;
 
 import org.bukkit.ChatColor;
@@ -18,12 +19,15 @@ import com.moandjiezana.toml.Toml;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
+
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 public class Jobs implements CommandExecutor, TabExecutor {
     private static final Plugin plugin = JavaPlugin.getProvidingPlugin(SimpleJobs.class);
@@ -109,6 +113,35 @@ public class Jobs implements CommandExecutor, TabExecutor {
 
                 // TODO
                 // accept job
+
+                class BClass {
+                    Map<String, String> current_jobs = new HashMap<>();
+                }
+
+                BClass obj = new BClass();
+
+                DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
+                LocalDateTime now = LocalDateTime.now();
+
+                obj.current_jobs.put(args[1], dtf.format(now));
+
+                TomlWriter tomlWriter = new TomlWriter.Builder()
+                        .indentValuesBy(2)
+                        .indentTablesBy(4)
+                        .padArrayDelimitersBy(3)
+                        .build();
+
+                try {
+                    File file = new File(plugin.getDataFolder() + "/players/" + sender.getName() + ".toml");
+                    file.createNewFile();
+
+                    tomlWriter.write(obj, file);
+                } catch (IOException e) {
+                    plugin.getLogger().warning(e.toString());
+                    sender.sendMessage(e.toString());
+
+                    return true;
+                }
 
                 break;
 

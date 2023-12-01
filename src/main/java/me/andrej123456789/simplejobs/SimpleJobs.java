@@ -32,6 +32,13 @@ public final class SimpleJobs extends JavaPlugin {
             saveResource("staff_jobs/staff_team.toml", false);
         }
 
+        // Check and copy "demo.toml"
+        File demoPlayerFile = new File(getDataFolder(), "players/demo.toml");
+        if (!demoPlayerFile.exists()) {
+            saveResource("players/demo.toml", false);
+        }
+
+
         // Load configuration
         getConfig().options().copyDefaults();
         saveDefaultConfig();
