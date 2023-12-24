@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import com.moandjiezana.toml.Toml;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -88,6 +89,8 @@ public class Jobs implements CommandExecutor, TabExecutor {
         switch (args[0]) {
             case "accept":
 
+                /* Get jobs */
+
                 if (args.length < 2) {
                     sender.sendMessage(ChatColor.YELLOW + "This subcommand requires (job) argument!" + ChatColor.RESET);
                     return false;
@@ -112,37 +115,23 @@ public class Jobs implements CommandExecutor, TabExecutor {
                 }
 
                 // TODO
-                // accept job
-
-                class BClass {
-                    Map<String, String> current_jobs = new HashMap<>();
-                }
-
-                BClass obj = new BClass();
+                /* Accept job */
 
                 DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
                 LocalDateTime now = LocalDateTime.now();
 
-                obj.current_jobs.put(args[1], dtf.format(now));
+                // Define your data in a modular way
+                Map<String, Map<String, Object>> jobs = new HashMap<>();
 
-                TomlWriter tomlWriter = new TomlWriter.Builder()
-                        .indentValuesBy(2)
-                        .indentTablesBy(4)
-                        .padArrayDelimitersBy(3)
-                        .build();
+                // Add job 1
+                Map<String, Object> job = new HashMap<>();
+                job.put("started", dtf.format(now));
+                job.put("price", 0.0);
+                job.put("blocks_done", 0.0);
 
-                try {
-                    File file = new File(plugin.getDataFolder() + "/players/" + sender.getName() + ".toml");
-                    file.createNewFile();
+                jobs.put(args[1], job);
 
-                    tomlWriter.write(obj, file);
-                } catch (IOException e) {
-                    plugin.getLogger().warning(e.toString());
-                    sender.sendMessage(e.toString());
-
-                    return true;
-                }
-
+                appendToTOML(sender, jobs, plugin.getDataFolder() + "/players/" + sender.getName() + ".toml");
                 break;
 
             case "status":
@@ -174,5 +163,38 @@ public class Jobs implements CommandExecutor, TabExecutor {
         }
 
         return new ArrayList<>(); /* null = all player names */
+    }
+
+    private static void writeTOML(@NotNull CommandSender sender, Map<String, Map<String, Object>> data, String path) {
+        TomlWriter writer = new TomlWriter();
+        File outputFile = new File(path);
+
+        try (FileWriter fileWriter = new FileWriter(outputFile)) {
+            writer.write(data, fileWriter);
+            System.out.println("TOML file generated successfully: " + outputFile.getAbsolutePath());
+        } catch (IOException e) {
+            sender.sendMessage(ChatColor.YELLOW + "Job not found in `jobs` folder!" + ChatColor.RESET);
+        }
+    }
+
+    private static void appendToTOML(@NotNull CommandSender sender, Map<String, Map<String, Object>> data, String fileName) {
+        TomlWriter writer = new TomlWriter();
+        File outputFile = new File(fileName);
+
+        // If the file exists, load existing data
+        Map<String, Object> existingData = new HashMap<>();
+        if (outputFile.exists()) {
+            existingData = new Toml().read(outputFile).toMap();
+        }
+
+        // Merge existing data with new data
+        existingData.putAll(data);
+
+        try (FileWriter fileWriter = new FileWriter(outputFile)) {
+            writer.write(existingData, fileWriter);
+            System.out.println("TOML entries appended successfully to: " + outputFile.getAbsolutePath());
+        } catch (IOException e) {
+            sender.sendMessage(ChatColor.YELLOW + "Job not found in `jobs` folder!" + ChatColor.RESET);
+        }
     }
 }
