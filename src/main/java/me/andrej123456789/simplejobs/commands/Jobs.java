@@ -126,6 +126,7 @@ public class Jobs implements CommandExecutor, TabExecutor {
                 Map<String, Object> job = new HashMap<>();
                 job.put("started", dtf.format(now));
                 job.put("ended", "");
+                job.put("timeout", "");
                 job.put("price", 0.0);
                 job.put("blocks_done", 0.0);
 

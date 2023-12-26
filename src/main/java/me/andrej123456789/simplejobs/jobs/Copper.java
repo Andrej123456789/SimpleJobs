@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import com.moandjiezana.toml.Toml;
@@ -105,11 +106,21 @@ public class Copper implements Listener {
             DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
             LocalDateTime now = LocalDateTime.now();
 
-            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "started", "");
-            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "ended", dtf.format(now));
+            LocalDate date1 = LocalDate.parse(playerToml.getString("scrape_copper_" + difficulty + ".started"), dtf);
+            LocalDate date2 = LocalDate.now();
 
-            getEconomy().depositPlayer(player, playerToml.getDouble("scrape_copper_" + difficulty + ".price"));
-            player.sendMessage(ChatColor.GREEN + "Congrats on finished work!" + ChatColor.RESET);
+            if (ChronoUnit.DAYS.between(date1, date2) >= jobToml.getDouble("scrape_copper." + difficulty + ".duration")) {
+                updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "started", "");
+                updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "ended", dtf.format(now));
+                updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", 0.0);
+                updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", 0.0);
+
+                getEconomy().depositPlayer(player, playerToml.getDouble("scrape_copper_" + difficulty + ".price"));
+                player.sendMessage(ChatColor.GREEN + "Congrats on finished work!" + ChatColor.RESET);
+            }
+
+            player.sendMessage(ChatColor.GREEN + "You finished for today!" + ChatColor.RESET);
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", 0.0);
         }
     }
 
