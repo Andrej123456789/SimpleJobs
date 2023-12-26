@@ -28,14 +28,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import java.time.format.DateTimeFormatter;
-import java.time.LocalDateTime;
 
 public class Jobs implements CommandExecutor, TabExecutor {
     private static final Plugin plugin = JavaPlugin.getProvidingPlugin(SimpleJobs.class);
-
-    private static Set<String> getJobs() {
-        return plugin.getConfig().getConfigurationSection("jobs").getKeys(false);
-    }
 
     private static String readFileToString(String filePath) throws IOException {
         Path file = Paths.get(filePath);
@@ -63,8 +58,8 @@ public class Jobs implements CommandExecutor, TabExecutor {
 
         ArrayList<String> file_names = new ArrayList<>();
 
-        for (int i = 0; i < listOfFiles.length; i++) {
-           file_names.add(listOfFiles[i].getName().replace(".toml", ""));
+        for (File listOfFile : listOfFiles) {
+            file_names.add(listOfFile.getName().replace(".toml", ""));
         }
 
         return file_names;
@@ -89,19 +84,13 @@ public class Jobs implements CommandExecutor, TabExecutor {
         switch (args[0]) {
             case "accept":
 
-                /* Get jobs */
+                /* -------------------- */
+                /*      Get jobs        */
+                /* -------------------- */
 
                 if (args.length < 2) {
                     sender.sendMessage(ChatColor.YELLOW + "This subcommand requires (job) argument!" + ChatColor.RESET);
                     return false;
-                }
-
-                Toml toml;
-
-                try {
-                    toml = new Toml().read(readFileToString(plugin.getDataFolder() + "/jobs/scraping_copper.toml"));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
                 }
 
                 ArrayList<String> files = getFiles(plugin.getDataFolder() + "/jobs/");
@@ -109,13 +98,24 @@ public class Jobs implements CommandExecutor, TabExecutor {
                     plugin.getLogger().info(files.get(i));
                 }
 
-                if (!files.contains(args[1])) {
+                if (!files.contains(removeSubJob(args[1]))) {
                     sender.sendMessage(ChatColor.YELLOW + "Job not found in `jobs` folder!" + ChatColor.RESET);
                     return true;
                 }
 
                 // TODO
-                /* Accept job */
+                // Sub job
+
+                if (args[1].startsWith("scraping_copper")) {
+                    if (!(args[1].endsWith(".peaceful") || args[1].endsWith(".easy") || args[1].endsWith(".medium") || args[1].endsWith(".hard") || args[1].endsWith(".extreme"))) {
+                        sender.sendMessage(ChatColor.YELLOW + "Invalid sub job!" + ChatColor.RESET);
+                        return true;
+                    }
+                }
+
+                /* -------------------- */
+                /*      Accept job      */
+                /* -------------------- */
 
                 DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
                 LocalDateTime now = LocalDateTime.now();
@@ -158,10 +158,6 @@ public class Jobs implements CommandExecutor, TabExecutor {
             return Arrays.asList("accept", "status", "quit", "help");
         }
 
-        if (args.length == 2) {
-            return new ArrayList<>();
-        }
-
         return new ArrayList<>(); /* null = all player names */
     }
 
@@ -171,12 +167,12 @@ public class Jobs implements CommandExecutor, TabExecutor {
 
         try (FileWriter fileWriter = new FileWriter(outputFile)) {
             writer.write(data, fileWriter);
-            System.out.println("TOML file generated successfully: " + outputFile.getAbsolutePath());
         } catch (IOException e) {
             sender.sendMessage(ChatColor.YELLOW + "Job not found in `jobs` folder!" + ChatColor.RESET);
         }
     }
 
+    // TODO
     private static void appendToTOML(@NotNull CommandSender sender, Map<String, Map<String, Object>> data, String fileName) {
         TomlWriter writer = new TomlWriter();
         File outputFile = new File(fileName);
@@ -192,9 +188,19 @@ public class Jobs implements CommandExecutor, TabExecutor {
 
         try (FileWriter fileWriter = new FileWriter(outputFile)) {
             writer.write(existingData, fileWriter);
-            System.out.println("TOML entries appended successfully to: " + outputFile.getAbsolutePath());
         } catch (IOException e) {
             sender.sendMessage(ChatColor.YELLOW + "Job not found in `jobs` folder!" + ChatColor.RESET);
+        }
+    }
+
+    private static String removeSubJob(String input) {
+        int dotIndex = input.indexOf('.');
+
+        if (dotIndex != -1) {
+            return input.substring(0, dotIndex);
+        } else {
+            // If there is no dot, return the original string
+            return input;
         }
     }
 }
