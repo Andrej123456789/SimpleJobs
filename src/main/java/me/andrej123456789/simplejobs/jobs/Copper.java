@@ -17,10 +17,14 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
@@ -53,14 +57,18 @@ public class Copper implements Listener {
         if (hand == null || hand.getType() != Material.NETHERITE_AXE)
             return;
 
-        // Get accepted job
-        /*Toml toml = new Toml().read(plugin.getDataFolder() + "/players/" + player.getName() + ".toml");
+        // Specify the path to your TOML file
+        String filePath = plugin.getDataFolder() + "/players/" + player.getName() + ".toml";
 
-        // Get all tables in the TOML file
-        toml.toMap().forEach((key, value) -> {
-            if (value instanceof Toml) {
-                System.out.println("Table: " + key);
-            }
-        });*/
+        // Parse the TOML file
+        Toml toml = new Toml().read(new File(filePath));
+
+        // Get the root map, which contains all the tables
+        Map<String, Object> rootMap = toml.toMap();
+
+        // Extract and print the table names
+        ArrayList<String> tableNames = (ArrayList<String>) rootMap.keySet();
+        System.out.println("Table Names: " + tableNames);
+
     }
 }
