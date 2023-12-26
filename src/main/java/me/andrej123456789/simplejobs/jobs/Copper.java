@@ -106,7 +106,14 @@ public class Copper implements Listener {
         }
 
         if (OXIDIZED.contains(clicked.getType())) {
+            double oxidized_price = jobToml.getDouble("scrape_copper.prices.weathered_block");
+            plugin.getLogger().info(String.valueOf(oxidized_price));
 
+            double current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
+            double current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
+
+            updateTomlVariable(playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
+            updateTomlVariable(playerPath, "scrape_copper_" + difficulty, "price", current_price + oxidized_price);
         }
     }
 
