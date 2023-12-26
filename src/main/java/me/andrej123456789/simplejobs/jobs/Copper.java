@@ -79,38 +79,24 @@ public class Copper implements Listener {
             return;
         }
 
+        double block_price = 0.0;
+        double current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
+        double current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
+
         if (EXPOSED.contains(clicked.getType())) {
-            double exposed_price = jobToml.getDouble("scrape_copper.prices.exposed_block");
-            plugin.getLogger().info(String.valueOf(exposed_price));
-
-            double current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
-            double current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
-
-            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
-            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", current_price + exposed_price);
+            block_price = jobToml.getDouble("scrape_copper.prices.exposed_block");
         }
 
         if (WEATHERED.contains(clicked.getType())) {
-            double weathered_price = jobToml.getDouble("scrape_copper.prices.weathered_block");
-            plugin.getLogger().info(String.valueOf(weathered_price));
-
-            double current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
-            double current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
-
-            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
-            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", current_price + weathered_price);
+            block_price = jobToml.getDouble("scrape_copper.prices.weathered_block");
         }
 
         if (OXIDIZED.contains(clicked.getType())) {
-            double oxidized_price = jobToml.getDouble("scrape_copper.prices.weathered_block");
-            plugin.getLogger().info(String.valueOf(oxidized_price));
-
-            double current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
-            double current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
-
-            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
-            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", current_price + oxidized_price);
+            block_price = jobToml.getDouble("scrape_copper.prices.oxidized_block");
         }
+
+        updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
+        updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", current_price + block_price);
     }
 
     private static String getDifficulty(String inputString) {
@@ -149,7 +135,6 @@ public class Copper implements Listener {
 
             // Write the updated lines back to the file
             Files.write(path, lines, StandardCharsets.UTF_8);
-            System.out.println("Variable updated successfully.");
 
         } catch (IOException e) {
             player.sendMessage(ChatColor.YELLOW + e.toString() + ChatColor.RESET);
