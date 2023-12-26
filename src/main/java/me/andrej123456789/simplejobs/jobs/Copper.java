@@ -21,10 +21,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
@@ -67,8 +64,8 @@ public class Copper implements Listener {
         Map<String, Object> rootMap = toml.toMap();
 
         // Extract and print the table names
-        ArrayList<String> tableNames = (ArrayList<String>) rootMap.keySet();
-        System.out.println("Table Names: " + tableNames);
-
+        Set<String> tableNames = rootMap.keySet();
+        Object[] accepted_jobs = tableNames.toArray();
+        System.out.println("Table Names: " + Arrays.toString(accepted_jobs));
     }
 }
