@@ -17,7 +17,12 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -54,18 +59,90 @@ public class Copper implements Listener {
         if (hand == null || hand.getType() != Material.NETHERITE_AXE)
             return;
 
-        // Specify the path to your TOML file
-        String filePath = plugin.getDataFolder() + "/players/" + player.getName() + ".toml";
+        String playerPath = plugin.getDataFolder() + "/players/" + player.getName() + ".toml";
+        String jobPath = plugin.getDataFolder() + "/jobs/scrape_copper.toml";
 
-        // Parse the TOML file
-        Toml toml = new Toml().read(new File(filePath));
+        Toml playerToml = new Toml().read(new File(playerPath));
+        Toml jobToml = new Toml().read(new File(jobPath));
 
-        // Get the root map, which contains all the tables
-        Map<String, Object> rootMap = toml.toMap();
+        String difficulty = "";
+        Map<String, Object> rootMap = playerToml.toMap();
 
-        // Extract and print the table names
         Set<String> tableNames = rootMap.keySet();
-        Object[] accepted_jobs = tableNames.toArray();
-        System.out.println("Table Names: " + Arrays.toString(accepted_jobs));
+        List<String> accepted_jobs = tableNames.stream().toList();
+
+        boolean found_job = false;
+        for (String acceptedJob : accepted_jobs) {
+            if (acceptedJob.startsWith("scrape_copper")) {
+                found_job = true;
+                difficulty = substringAfterSecondOccurrence(acceptedJob, '_');
+            }
+        }
+
+        if (!found_job) {
+            return;
+        }
+
+        if (EXPOSED.contains(clicked.getType())) {
+            double exposed_price = jobToml.getDouble("scrape_copper.prices.exposed_block");
+            plugin.getLogger().info(String.valueOf(exposed_price));
+
+            double current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
+            double current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
+
+            updateTomlVariable(playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
+            updateTomlVariable(playerPath, "scrape_copper_" + difficulty, "price", current_price + exposed_price);
+        }
+
+        if (WEATHERED.contains(clicked.getType())) {
+
+        }
+
+        if (OXIDIZED.contains(clicked.getType())) {
+
+        }
+    }
+
+    private static String substringAfterSecondOccurrence(String inputString, char character) {
+        int firstOccurrence = inputString.indexOf(character);
+        int secondOccurrence = inputString.indexOf(character, firstOccurrence + 1);
+
+        if (firstOccurrence != -1 && secondOccurrence != -1) {
+            return inputString.substring(secondOccurrence + 1);
+        } else {
+            return "Second occurrence not found.";
+        }
+    }
+
+    private static void updateTomlVariable(String filePath, String tableName, String keyToUpdate, double newValue) {
+        try {
+            // Read all lines from the file
+            Path path = Paths.get(filePath);
+            List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+
+            // Find the line containing the key in the specified table
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i);
+                if (line.trim().startsWith("[" + tableName + "]")) {
+                    // Table found, look for the key within the table
+                    for (int j = i + 1; j < lines.size(); j++) {
+                        String innerLine = lines.get(j);
+                        if (innerLine.trim().startsWith(keyToUpdate + " =")) {
+                            // Key found, update its value
+                            lines.set(j, keyToUpdate + " = " + newValue);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // Write the updated lines back to the file
+            Files.write(path, lines, StandardCharsets.UTF_8);
+            System.out.println("Variable updated successfully.");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
