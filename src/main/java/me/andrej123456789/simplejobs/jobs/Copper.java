@@ -1,6 +1,7 @@
 package me.andrej123456789.simplejobs.jobs;
 
 import me.andrej123456789.simplejobs.SimpleJobs;
+import static me.andrej123456789.simplejobs.SimpleJobs.getEconomy;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -22,6 +23,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import com.moandjiezana.toml.Toml;
@@ -96,6 +100,17 @@ public class Copper implements Listener {
 
         updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
         updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", current_price + block_price);
+
+        if (playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done") >= jobToml.getDouble("scrape_copper." + difficulty + ".blocks_to_do")) {
+            DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
+            LocalDateTime now = LocalDateTime.now();
+
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "started", "");
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "ended", dtf.format(now));
+
+            getEconomy().depositPlayer(player, playerToml.getDouble("scrape_copper_" + difficulty + ".price"));
+            player.sendMessage(ChatColor.GREEN + "Congrats on finished work!" + ChatColor.RESET);
+        }
     }
 
     private static String getDifficulty(String inputString) {
@@ -125,6 +140,37 @@ public class Copper implements Listener {
                         if (innerLine.trim().startsWith(keyToUpdate + " =")) {
                             // Key found, update its value
                             lines.set(j, keyToUpdate + " = " + newValue);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // Write the updated lines back to the file
+            Files.write(path, lines, StandardCharsets.UTF_8);
+
+        } catch (IOException e) {
+            player.sendMessage(ChatColor.YELLOW + e.toString() + ChatColor.RESET);
+        }
+    }
+
+    private static void updateTomlVariable(Player player, String filePath, String tableName, String keyToUpdate, String newValue) {
+        try {
+            // Read all lines from the file
+            Path path = Paths.get(filePath);
+            List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+
+            // Find the line containing the key in the specified table
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i);
+                if (line.trim().startsWith("[" + tableName + "]")) {
+                    // Table found, look for the key within the table
+                    for (int j = i + 1; j < lines.size(); j++) {
+                        String innerLine = lines.get(j);
+                        if (innerLine.trim().startsWith(keyToUpdate + " =")) {
+                            // Key found, update its value
+                            lines.set(j, keyToUpdate + " = \"" + newValue + "\"");
                             break;
                         }
                     }

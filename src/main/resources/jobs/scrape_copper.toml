@@ -10,26 +10,26 @@ oxidized_block = 0.06
 # ------------------------------------- #
 
 [scrape_copper.peaceful]
-blocks_to_do = 100
+blocks_to_do = 100.0
 timeout = 2592000                                       # in seconds
 duration = 1                                            # in days
 
 [scrape_copper.easy]
-blocks_to_do = 100
+blocks_to_do = 100.0
 timeout = 172800                                        # in seconds
 duration = 30                                           # in days
 
 [scrape_copper.medium]
-blocks_to_do = 1000
+blocks_to_do = 1000.0
 timeout = 172800                                        # in seconds
 duration = 30                                           # in days
 
 [scrape_copper.hard]
-blocks_to_do = 1000
+blocks_to_do = 1000.0
 timeout = 172800                                        # in seconds
 duration = 30                                           # in days
 
 [scrape_copper.extreme]
-blocks_to_do = 1000
+blocks_to_do = 1000.0
 timeout = 172800                                        # in seconds
 duration = 30                                           # in days
