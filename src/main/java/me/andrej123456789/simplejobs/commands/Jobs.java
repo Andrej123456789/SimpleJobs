@@ -3,11 +3,11 @@ package me.andrej123456789.simplejobs.commands;
 import me.andrej123456789.simplejobs.SimpleJobs;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,29 +15,62 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.format.DateTimeFormatter;
-import java.time.LocalDateTime;
+import com.moandjiezana.toml.Toml;
+import com.moandjiezana.toml.TomlWriter;
 
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.*;
+
+import java.time.format.DateTimeFormatter;
 
 public class Jobs implements CommandExecutor, TabExecutor {
+    private static final List<String> job_difficulty = List.of("peaceful", "easy", "medium", "hard", "extreme");
     private static final Plugin plugin = JavaPlugin.getProvidingPlugin(SimpleJobs.class);
 
-    private static Set<String> getJobs() {
-        return plugin.getConfig().getConfigurationSection("jobs").getKeys(false);
+    private static String readFileToString(String filePath) throws IOException {
+        Path file = Paths.get(filePath);
+        byte[] fileBytes = Files.readAllBytes(file);
+        return new String(fileBytes, StandardCharsets.UTF_8);
+    }
+
+    private static Map<String, Object> getPrices(Toml toml, @NotNull CommandSender sender) {
+        // Get all keys under the 'prices' sub-config
+        Toml tomlPrices = toml.getTable("prices");
+        Map<String, Object> prices;
+
+        if (tomlPrices == null) {
+            sender.sendMessage(ChatColor.YELLOW + "Prices sub-config in config.toml not found!" + ChatColor.RESET);
+            return null;
+        }
+
+        prices = tomlPrices.toMap();
+        return prices;
+    }
+
+    private static ArrayList<String> getFiles(String path) {
+        File folder = new File(path);
+        File[] listOfFiles = folder.listFiles();
+
+        ArrayList<String> file_names = new ArrayList<>();
+
+        for (File listOfFile : listOfFiles) {
+            file_names.add(listOfFile.getName().replace(".toml", ""));
+        }
+
+        return file_names;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.YELLOW + "Too few arguments!");
-            sender.sendMessage("Usage: /jobs <subcommand> <argument>");
-            return true;
+            return false;
         }
 
         if (!(sender instanceof Player)) {
@@ -52,41 +85,54 @@ public class Jobs implements CommandExecutor, TabExecutor {
 
         switch (args[0]) {
             case "accept":
-                Set<String> jobs = getJobs();
-                if (jobs == null) {
-                    sender.sendMessage(ChatColor.RED + "No jobs have been found!");
-                    break;
+
+                /* -------------------- */
+                /*      Get jobs        */
+                /* -------------------- */
+
+                if (args.length < 2) {
+                    sender.sendMessage(ChatColor.YELLOW + "This subcommand requires (job) argument!" + ChatColor.RESET);
+                    return false;
                 }
 
-                if (!jobs.contains(args[1])) {
-                    sender.sendMessage(ChatColor.YELLOW + "Requested job does not exist!");
-                    break;
+                ArrayList<String> files = getFiles(plugin.getDataFolder() + "/jobs/");
+                for (int i = 0; i < files.size(); i++) {
+                    plugin.getLogger().info(files.get(i));
                 }
 
-                ConfigurationSection root_section = plugin.getConfig().getConfigurationSection("jobs.scrape_copper_peaceful.players");
-                if (root_section == null) {
-                    sender.sendMessage(ChatColor.RED + "Root section has not been found!");
-                    break;
+                if (!files.contains(args[1])) {
+                    sender.sendMessage(ChatColor.YELLOW + "Job not found in `jobs` folder!" + ChatColor.RESET);
+                    return true;
                 }
 
-                ConfigurationSection example_section = root_section.getConfigurationSection("Player1");
-                if (example_section == null) {
-                    sender.sendMessage(ChatColor.RED + "Example section has not been found!");
-                    break;
+                // Sub job
+
+                if (!job_difficulty.contains(args[2])) {
+                    sender.sendMessage(ChatColor.YELLOW + "Invalid job difficulty!" + ChatColor.RESET);
+                    return true;
                 }
 
-                Map<String, Object> new_section = new HashMap<>();
-                for (String i : example_section.getKeys(false)) {
-                    new_section.put(i, example_section.get(i));
-                }
+                /* -------------------- */
+                /*      Accept job      */
+                /* -------------------- */
 
                 DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
                 LocalDateTime now = LocalDateTime.now();
 
-                plugin.getConfig().createSection("jobs." + args[1] + ".players." + sender.getName(), new_section);
-                plugin.getConfig().set("jobs." + args[1] + ".players." + sender.getName() + ".started", dtf.format(now));
+                // Define your data in a modular way
+                Map<String, Map<String, Object>> jobs = new HashMap<>();
 
-                plugin.saveConfig();
+                // Add job 1
+                Map<String, Object> job = new HashMap<>();
+                job.put("started", dtf.format(now));
+                job.put("ended", "");
+                job.put("timeout", "");
+                job.put("price", 0.0);
+                job.put("blocks_done", 0.0);
+
+                jobs.put(args[1] + "_" + args[2], job);
+
+                appendToTOML(sender, jobs, plugin.getDataFolder() + "/players/" + sender.getName() + ".toml");
                 break;
 
             case "status":
@@ -113,10 +159,49 @@ public class Jobs implements CommandExecutor, TabExecutor {
             return Arrays.asList("accept", "status", "quit", "help");
         }
 
-        if (args.length == 2) {
-            return new ArrayList<>(getJobs());
+        return new ArrayList<>(); /* null = all player names */
+    }
+
+    private static void writeTOML(@NotNull CommandSender sender, Map<String, Map<String, Object>> data, String path) {
+        TomlWriter writer = new TomlWriter();
+        File outputFile = new File(path);
+
+        try (FileWriter fileWriter = new FileWriter(outputFile)) {
+            writer.write(data, fileWriter);
+        } catch (IOException e) {
+            sender.sendMessage(ChatColor.YELLOW + "Job not found in `jobs` folder!" + ChatColor.RESET);
+        }
+    }
+
+    // TODO
+    private static void appendToTOML(@NotNull CommandSender sender, Map<String, Map<String, Object>> data, String fileName) {
+        TomlWriter writer = new TomlWriter();
+        File outputFile = new File(fileName);
+
+        // If the file exists, load existing data
+        Map<String, Object> existingData = new HashMap<>();
+        if (outputFile.exists()) {
+            existingData = new Toml().read(outputFile).toMap();
         }
 
-        return new ArrayList<>(); /* null = all player names */
+        // Merge existing data with new data
+        existingData.putAll(data);
+
+        try (FileWriter fileWriter = new FileWriter(outputFile)) {
+            writer.write(existingData, fileWriter);
+        } catch (IOException e) {
+            sender.sendMessage(ChatColor.YELLOW + "Job not found in `jobs` folder!" + ChatColor.RESET);
+        }
+    }
+
+    private static String removeSubJob(String input) {
+        int dotIndex = input.indexOf('.');
+
+        if (dotIndex != -1) {
+            return input.substring(0, dotIndex);
+        } else {
+            // If there is no dot, return the original string
+            return input;
+        }
     }
 }

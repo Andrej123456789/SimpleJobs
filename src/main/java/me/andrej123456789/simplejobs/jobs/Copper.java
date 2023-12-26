@@ -6,7 +6,6 @@ import static me.andrej123456789.simplejobs.SimpleJobs.getEconomy;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,12 +16,20 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
+import com.moandjiezana.toml.Toml;
 
 public class Copper implements Listener {
     private static final List<Material> EXPOSED = List.of(Material.EXPOSED_COPPER, Material.EXPOSED_CUT_COPPER, Material.EXPOSED_CUT_COPPER_SLAB, Material.EXPOSED_CUT_COPPER_STAIRS);
@@ -52,105 +59,141 @@ public class Copper implements Listener {
         if (hand == null || hand.getType() != Material.NETHERITE_AXE)
             return;
 
-        ConfigurationSection jobs = plugin.getConfig().getConfigurationSection("jobs");
+        String playerPath = plugin.getDataFolder() + "/players/" + player.getName() + ".toml";
+        String jobPath = plugin.getDataFolder() + "/jobs/scrape_copper.toml";
 
-        String job = "";
-        boolean accepted = false;
+        Toml playerToml = new Toml().read(new File(playerPath));
+        Toml jobToml = new Toml().read(new File(jobPath));
 
-        for (String _job : jobs.getKeys(false)) {
-            ConfigurationSection players = jobs.getConfigurationSection(_job + ".players");
+        String difficulty = "";
+        Map<String, Object> rootMap = playerToml.toMap();
 
-            if (players.getKeys(false).contains(player.getName())) {
-                job = _job;
-                accepted = true;
+        Set<String> tableNames = rootMap.keySet();
+        List<String> accepted_jobs = tableNames.stream().toList();
 
-                break;
+        boolean found_job = false;
+        for (String acceptedJob : accepted_jobs) {
+            if (acceptedJob.startsWith("scrape_copper")) {
+                found_job = true;
+                difficulty = getDifficulty(acceptedJob);
             }
         }
 
-        if (!accepted) {
+        if (!found_job) {
             return;
         }
 
-        final String job_path = "jobs." + job;
-        final String players_path = ".players." + player.getName();
+        double block_price = 0.0;
+        double current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
+        double current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
 
         if (EXPOSED.contains(clicked.getType())) {
-            if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
-                double value = plugin.getConfig().getDouble(job_path + players_path + ".current_price");
-                value += plugin.getConfig().getDouble(job_path + ".prices.exposed_block");
-
-                plugin.getConfig().set(job_path + players_path + ".current_price", value);
-                plugin.saveConfig();
-            }
-
-            int blocks_done = plugin.getConfig().getInt(job_path + players_path + ".blocks_done");
-            plugin.getConfig().set(job_path + players_path + ".blocks_done", blocks_done += 3);
-
-            plugin.saveConfig();
+            block_price = jobToml.getDouble("scrape_copper.prices.exposed_block");
         }
 
         if (WEATHERED.contains(clicked.getType())) {
-            if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
-                double value = plugin.getConfig().getDouble(job_path + players_path + ".current_price");
-                value += plugin.getConfig().getDouble(job_path + ".prices.weathered_block");
-
-                plugin.getConfig().set(job_path + players_path + ".current_price", value);
-                plugin.saveConfig();
-            }
-
-            int blocks_done = plugin.getConfig().getInt(job_path + players_path + ".blocks_done");
-            plugin.getConfig().set(job_path + players_path + ".blocks_done", blocks_done += 2);
-
-            plugin.saveConfig();
+            block_price = jobToml.getDouble("scrape_copper.prices.weathered_block");
         }
 
         if (OXIDIZED.contains(clicked.getType())) {
-            if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
-
-                double value = plugin.getConfig().getDouble(job_path + players_path + ".current_price");
-                value += plugin.getConfig().getDouble(job_path + ".prices.oxidized_block");
-
-                plugin.getConfig().set(job_path + players_path + ".current_price", value);
-                plugin.saveConfig();
-            }
-
-            int blocks_done = plugin.getConfig().getInt(job_path + players_path + ".blocks_done");
-            plugin.getConfig().set(job_path + players_path + ".blocks_done", blocks_done += 1);
-
-            plugin.saveConfig();
+            block_price = jobToml.getDouble("scrape_copper.prices.oxidized_block");
         }
 
-        /* Player can scrape oxidized block and then leave it in weathered state.
-           You removed the worst state, and you got money; but I'll make sure you don't leave your job unfinished */
+        updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
+        updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", current_price + block_price);
 
-        if (plugin.getConfig().getInt(job_path + players_path + ".blocks_done") >= plugin.getConfig().getInt(job_path + ".blocks_to_do")) {
+        if (playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done") >= jobToml.getDouble("scrape_copper." + difficulty + ".blocks_to_do")) {
             DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
+            LocalDateTime now = LocalDateTime.now();
 
-            LocalDate date1 = LocalDate.parse(Objects.requireNonNull(plugin.getConfig().getString(job_path + players_path + ".started")), dtf);
+            LocalDate date1 = LocalDate.parse(playerToml.getString("scrape_copper_" + difficulty + ".started"), dtf);
             LocalDate date2 = LocalDate.now();
 
-            plugin.getLogger().info(ChronoUnit.DAYS.between(date1, date2) + " | " + plugin.getConfig().getLong(job_path + ".duration"));
+            if (ChronoUnit.DAYS.between(date1, date2) >= jobToml.getDouble("scrape_copper." + difficulty + ".duration")) {
+                updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "started", "");
+                updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "ended", dtf.format(now));
+                updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", 0.0);
+                updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", 0.0);
 
-            if (ChronoUnit.DAYS.between(date1, date2) >= plugin.getConfig().getLong(job_path + ".duration")) {
-                getEconomy().depositPlayer(player, plugin.getConfig().getDouble(job_path + players_path + ".current_price"));
-
-                player.sendMessage(ChatColor.GREEN + "Congrats, you finished your job!");
-                player.sendMessage(ChatColor.GREEN + "Your reward: " + ChatColor.DARK_GREEN + Double.toString(plugin.getConfig().getDouble(job_path + players_path + ".current_price")));
-
-                plugin.getConfig().set(job_path + players_path + ".last_finished", dtf.format(LocalDate.now()));
-                plugin.getConfig().set(job_path + players_path + ".started", "");
-
-                plugin.getConfig().set(job_path + players_path + ".blocks_done", 0);
-                plugin.getConfig().set(job_path + players_path + ".current_price", 0.00);
-
-                plugin.saveConfig();
+                getEconomy().depositPlayer(player, playerToml.getDouble("scrape_copper_" + difficulty + ".price"));
+                player.sendMessage(ChatColor.GREEN + "Congrats on finished work!" + ChatColor.RESET);
             }
 
-            player.sendMessage(ChatColor.GREEN + "You finished for today!");
+            player.sendMessage(ChatColor.GREEN + "You finished for today!" + ChatColor.RESET);
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", 0.0);
+        }
+    }
 
-            plugin.getConfig().set(job_path + players_path + ".blocks_done", 0);
-            plugin.saveConfig();
+    private static String getDifficulty(String inputString) {
+        int firstOccurrence = inputString.indexOf('_');
+        int secondOccurrence = inputString.indexOf('_', firstOccurrence + 1);
+
+        if (firstOccurrence != -1 && secondOccurrence != -1) {
+            return inputString.substring(secondOccurrence + 1);
+        } else {
+            return "Second occurrence not found.";
+        }
+    }
+
+    private static void updateTomlVariable(Player player, String filePath, String tableName, String keyToUpdate, double newValue) {
+        try {
+            // Read all lines from the file
+            Path path = Paths.get(filePath);
+            List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+
+            // Find the line containing the key in the specified table
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i);
+                if (line.trim().startsWith("[" + tableName + "]")) {
+                    // Table found, look for the key within the table
+                    for (int j = i + 1; j < lines.size(); j++) {
+                        String innerLine = lines.get(j);
+                        if (innerLine.trim().startsWith(keyToUpdate + " =")) {
+                            // Key found, update its value
+                            lines.set(j, keyToUpdate + " = " + newValue);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // Write the updated lines back to the file
+            Files.write(path, lines, StandardCharsets.UTF_8);
+
+        } catch (IOException e) {
+            player.sendMessage(ChatColor.YELLOW + e.toString() + ChatColor.RESET);
+        }
+    }
+
+    private static void updateTomlVariable(Player player, String filePath, String tableName, String keyToUpdate, String newValue) {
+        try {
+            // Read all lines from the file
+            Path path = Paths.get(filePath);
+            List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+
+            // Find the line containing the key in the specified table
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i);
+                if (line.trim().startsWith("[" + tableName + "]")) {
+                    // Table found, look for the key within the table
+                    for (int j = i + 1; j < lines.size(); j++) {
+                        String innerLine = lines.get(j);
+                        if (innerLine.trim().startsWith(keyToUpdate + " =")) {
+                            // Key found, update its value
+                            lines.set(j, keyToUpdate + " = \"" + newValue + "\"");
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // Write the updated lines back to the file
+            Files.write(path, lines, StandardCharsets.UTF_8);
+
+        } catch (IOException e) {
+            player.sendMessage(ChatColor.YELLOW + e.toString() + ChatColor.RESET);
         }
     }
 }

@@ -3,6 +3,9 @@ version: '1.0-SNAPSHOT'
 main: me.andrej123456789.simplejobs.SimpleJobs
 api-version: '1.19'
 
+libraries:
+  - com.moandjiezana.toml:toml4j:0.7.2
+
 commands:
   jobs_admin:
       description: Admin command for SimpleJobs plugin
@@ -12,6 +15,6 @@ commands:
 
   jobs:
     description: Main command for SimpleJobs plugin
-    usage: '/jobs_admin <arg>'
+    usage: '/jobs <action> <job>'
     permission: simplejobs.jobs
     permission-message: '&cYou do not have permission to use this command'

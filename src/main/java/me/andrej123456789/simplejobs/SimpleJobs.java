@@ -1,17 +1,16 @@
 package me.andrej123456789.simplejobs;
 
+import me.andrej123456789.simplejobs.jobs.Copper;
 import me.andrej123456789.simplejobs.commands.Jobs;
 import me.andrej123456789.simplejobs.commands.JobsAdmin;
-import me.andrej123456789.simplejobs.jobs.Copper;
 
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-import net.milkbowl.vault.chat.Chat;
+import java.io.File;
+
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.economy.EconomyResponse;
-import net.milkbowl.vault.permission.Permission;
 
 public final class SimpleJobs extends JavaPlugin {
 
@@ -21,6 +20,26 @@ public final class SimpleJobs extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
 
+        // Check and copy "scrape_copper.toml"
+        File scrapingCopperFile = new File(getDataFolder(), "jobs/scrape_copper.toml");
+        if (!scrapingCopperFile.exists()) {
+            saveResource("jobs/scrape_copper.toml", false);
+        }
+
+        // Check and copy "staff_team.toml"
+        File staffTeamFile = new File(getDataFolder(), "staff_jobs/staff_team.toml");
+        if (!staffTeamFile.exists()) {
+            saveResource("staff_jobs/staff_team.toml", false);
+        }
+
+        // Check and copy "demo.toml"
+        File demoPlayerFile = new File(getDataFolder(), "players/demo.toml");
+        if (!demoPlayerFile.exists()) {
+            saveResource("players/demo.toml", false);
+        }
+
+
+        // Load configuration
         getConfig().options().copyDefaults();
         saveDefaultConfig();
 
