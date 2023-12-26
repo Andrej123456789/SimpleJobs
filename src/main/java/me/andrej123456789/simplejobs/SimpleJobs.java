@@ -20,10 +20,10 @@ public final class SimpleJobs extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
 
-        // Check and copy "scraping_copper.toml"
-        File scrapingCopperFile = new File(getDataFolder(), "jobs/scraping_copper.toml");
+        // Check and copy "scrape_copper.toml"
+        File scrapingCopperFile = new File(getDataFolder(), "jobs/scrape_copper.toml");
         if (!scrapingCopperFile.exists()) {
-            saveResource("jobs/scraping_copper.toml", false);
+            saveResource("jobs/scrape_copper.toml", false);
         }
 
         // Check and copy "staff_team.toml"

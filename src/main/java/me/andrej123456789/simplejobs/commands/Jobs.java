@@ -1,9 +1,9 @@
 package me.andrej123456789.simplejobs.commands;
 
-import com.moandjiezana.toml.TomlWriter;
 import me.andrej123456789.simplejobs.SimpleJobs;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.moandjiezana.toml.Toml;
+import com.moandjiezana.toml.TomlWriter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -30,6 +31,7 @@ import java.util.*;
 import java.time.format.DateTimeFormatter;
 
 public class Jobs implements CommandExecutor, TabExecutor {
+    private static final List<String> job_difficulty = List.of("peaceful", "easy", "medium", "hard", "extreme");
     private static final Plugin plugin = JavaPlugin.getProvidingPlugin(SimpleJobs.class);
 
     private static String readFileToString(String filePath) throws IOException {
@@ -67,7 +69,7 @@ public class Jobs implements CommandExecutor, TabExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args.length < 1) {
+        if (args.length < 2) {
             return false;
         }
 
@@ -98,19 +100,16 @@ public class Jobs implements CommandExecutor, TabExecutor {
                     plugin.getLogger().info(files.get(i));
                 }
 
-                if (!files.contains(removeSubJob(args[1]))) {
+                if (!files.contains(args[1])) {
                     sender.sendMessage(ChatColor.YELLOW + "Job not found in `jobs` folder!" + ChatColor.RESET);
                     return true;
                 }
 
-                // TODO
                 // Sub job
 
-                if (args[1].startsWith("scraping_copper")) {
-                    if (!(args[1].endsWith(".peaceful") || args[1].endsWith(".easy") || args[1].endsWith(".medium") || args[1].endsWith(".hard") || args[1].endsWith(".extreme"))) {
-                        sender.sendMessage(ChatColor.YELLOW + "Invalid sub job!" + ChatColor.RESET);
-                        return true;
-                    }
+                if (!job_difficulty.contains(args[2])) {
+                    sender.sendMessage(ChatColor.YELLOW + "Invalid job difficulty!" + ChatColor.RESET);
+                    return true;
                 }
 
                 /* -------------------- */
@@ -129,7 +128,7 @@ public class Jobs implements CommandExecutor, TabExecutor {
                 job.put("price", 0.0);
                 job.put("blocks_done", 0.0);
 
-                jobs.put(args[1], job);
+                jobs.put(args[1] + "_" + args[2], job);
 
                 appendToTOML(sender, jobs, plugin.getDataFolder() + "/players/" + sender.getName() + ".toml");
                 break;

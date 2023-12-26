@@ -6,7 +6,6 @@ import static me.andrej123456789.simplejobs.SimpleJobs.getEconomy;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,12 +16,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Objects;
+
+import com.moandjiezana.toml.Toml;
+import com.moandjiezana.toml.TomlWriter;
 
 public class Copper implements Listener {
     private static final List<Material> EXPOSED = List.of(Material.EXPOSED_COPPER, Material.EXPOSED_CUT_COPPER, Material.EXPOSED_CUT_COPPER_SLAB, Material.EXPOSED_CUT_COPPER_STAIRS);
@@ -52,105 +53,14 @@ public class Copper implements Listener {
         if (hand == null || hand.getType() != Material.NETHERITE_AXE)
             return;
 
-        ConfigurationSection jobs = plugin.getConfig().getConfigurationSection("jobs");
+        // Get accepted job
+        /*Toml toml = new Toml().read(plugin.getDataFolder() + "/players/" + player.getName() + ".toml");
 
-        String job = "";
-        boolean accepted = false;
-
-        for (String _job : jobs.getKeys(false)) {
-            ConfigurationSection players = jobs.getConfigurationSection(_job + ".players");
-
-            if (players.getKeys(false).contains(player.getName())) {
-                job = _job;
-                accepted = true;
-
-                break;
+        // Get all tables in the TOML file
+        toml.toMap().forEach((key, value) -> {
+            if (value instanceof Toml) {
+                System.out.println("Table: " + key);
             }
-        }
-
-        if (!accepted) {
-            return;
-        }
-
-        final String job_path = "jobs." + job;
-        final String players_path = ".players." + player.getName();
-
-        if (EXPOSED.contains(clicked.getType())) {
-            if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
-                double value = plugin.getConfig().getDouble(job_path + players_path + ".current_price");
-                value += plugin.getConfig().getDouble(job_path + ".prices.exposed_block");
-
-                plugin.getConfig().set(job_path + players_path + ".current_price", value);
-                plugin.saveConfig();
-            }
-
-            int blocks_done = plugin.getConfig().getInt(job_path + players_path + ".blocks_done");
-            plugin.getConfig().set(job_path + players_path + ".blocks_done", blocks_done += 3);
-
-            plugin.saveConfig();
-        }
-
-        if (WEATHERED.contains(clicked.getType())) {
-            if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
-                double value = plugin.getConfig().getDouble(job_path + players_path + ".current_price");
-                value += plugin.getConfig().getDouble(job_path + ".prices.weathered_block");
-
-                plugin.getConfig().set(job_path + players_path + ".current_price", value);
-                plugin.saveConfig();
-            }
-
-            int blocks_done = plugin.getConfig().getInt(job_path + players_path + ".blocks_done");
-            plugin.getConfig().set(job_path + players_path + ".blocks_done", blocks_done += 2);
-
-            plugin.saveConfig();
-        }
-
-        if (OXIDIZED.contains(clicked.getType())) {
-            if (plugin.getConfig().getDouble(job_path + ".prices.price_final") == 0.00) {
-
-                double value = plugin.getConfig().getDouble(job_path + players_path + ".current_price");
-                value += plugin.getConfig().getDouble(job_path + ".prices.oxidized_block");
-
-                plugin.getConfig().set(job_path + players_path + ".current_price", value);
-                plugin.saveConfig();
-            }
-
-            int blocks_done = plugin.getConfig().getInt(job_path + players_path + ".blocks_done");
-            plugin.getConfig().set(job_path + players_path + ".blocks_done", blocks_done += 1);
-
-            plugin.saveConfig();
-        }
-
-        /* Player can scrape oxidized block and then leave it in weathered state.
-           You removed the worst state, and you got money; but I'll make sure you don't leave your job unfinished */
-
-        if (plugin.getConfig().getInt(job_path + players_path + ".blocks_done") >= plugin.getConfig().getInt(job_path + ".blocks_to_do")) {
-            DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
-
-            LocalDate date1 = LocalDate.parse(Objects.requireNonNull(plugin.getConfig().getString(job_path + players_path + ".started")), dtf);
-            LocalDate date2 = LocalDate.now();
-
-            plugin.getLogger().info(ChronoUnit.DAYS.between(date1, date2) + " | " + plugin.getConfig().getLong(job_path + ".duration"));
-
-            if (ChronoUnit.DAYS.between(date1, date2) >= plugin.getConfig().getLong(job_path + ".duration")) {
-                getEconomy().depositPlayer(player, plugin.getConfig().getDouble(job_path + players_path + ".current_price"));
-
-                player.sendMessage(ChatColor.GREEN + "Congrats, you finished your job!");
-                player.sendMessage(ChatColor.GREEN + "Your reward: " + ChatColor.DARK_GREEN + Double.toString(plugin.getConfig().getDouble(job_path + players_path + ".current_price")));
-
-                plugin.getConfig().set(job_path + players_path + ".last_finished", dtf.format(LocalDate.now()));
-                plugin.getConfig().set(job_path + players_path + ".started", "");
-
-                plugin.getConfig().set(job_path + players_path + ".blocks_done", 0);
-                plugin.getConfig().set(job_path + players_path + ".current_price", 0.00);
-
-                plugin.saveConfig();
-            }
-
-            player.sendMessage(ChatColor.GREEN + "You finished for today!");
-
-            plugin.getConfig().set(job_path + players_path + ".blocks_done", 0);
-            plugin.saveConfig();
-        }
+        });*/
     }
 }
