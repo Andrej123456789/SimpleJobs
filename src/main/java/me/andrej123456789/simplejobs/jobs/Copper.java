@@ -2,7 +2,6 @@ package me.andrej123456789.simplejobs.jobs;
 
 import me.andrej123456789.simplejobs.SimpleJobs;
 
-import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
