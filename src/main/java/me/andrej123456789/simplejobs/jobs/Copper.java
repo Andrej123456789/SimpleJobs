@@ -1,8 +1,8 @@
 package me.andrej123456789.simplejobs.jobs;
 
 import me.andrej123456789.simplejobs.SimpleJobs;
-import static me.andrej123456789.simplejobs.SimpleJobs.getEconomy;
 
+import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -17,19 +17,15 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import java.util.*;
 
 import com.moandjiezana.toml.Toml;
-import com.moandjiezana.toml.TomlWriter;
 
 public class Copper implements Listener {
     private static final List<Material> EXPOSED = List.of(Material.EXPOSED_COPPER, Material.EXPOSED_CUT_COPPER, Material.EXPOSED_CUT_COPPER_SLAB, Material.EXPOSED_CUT_COPPER_STAIRS);
@@ -75,7 +71,7 @@ public class Copper implements Listener {
         for (String acceptedJob : accepted_jobs) {
             if (acceptedJob.startsWith("scrape_copper")) {
                 found_job = true;
-                difficulty = substringAfterSecondOccurrence(acceptedJob, '_');
+                difficulty = getDifficulty(acceptedJob);
             }
         }
 
@@ -90,8 +86,8 @@ public class Copper implements Listener {
             double current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
             double current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
 
-            updateTomlVariable(playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
-            updateTomlVariable(playerPath, "scrape_copper_" + difficulty, "price", current_price + exposed_price);
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", current_price + exposed_price);
         }
 
         if (WEATHERED.contains(clicked.getType())) {
@@ -101,8 +97,8 @@ public class Copper implements Listener {
             double current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
             double current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
 
-            updateTomlVariable(playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
-            updateTomlVariable(playerPath, "scrape_copper_" + difficulty, "price", current_price + weathered_price);
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", current_price + weathered_price);
         }
 
         if (OXIDIZED.contains(clicked.getType())) {
@@ -112,14 +108,14 @@ public class Copper implements Listener {
             double current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
             double current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
 
-            updateTomlVariable(playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
-            updateTomlVariable(playerPath, "scrape_copper_" + difficulty, "price", current_price + oxidized_price);
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", current_price + oxidized_price);
         }
     }
 
-    private static String substringAfterSecondOccurrence(String inputString, char character) {
-        int firstOccurrence = inputString.indexOf(character);
-        int secondOccurrence = inputString.indexOf(character, firstOccurrence + 1);
+    private static String getDifficulty(String inputString) {
+        int firstOccurrence = inputString.indexOf('_');
+        int secondOccurrence = inputString.indexOf('_', firstOccurrence + 1);
 
         if (firstOccurrence != -1 && secondOccurrence != -1) {
             return inputString.substring(secondOccurrence + 1);
@@ -128,7 +124,7 @@ public class Copper implements Listener {
         }
     }
 
-    private static void updateTomlVariable(String filePath, String tableName, String keyToUpdate, double newValue) {
+    private static void updateTomlVariable(Player player, String filePath, String tableName, String keyToUpdate, double newValue) {
         try {
             // Read all lines from the file
             Path path = Paths.get(filePath);
@@ -156,7 +152,7 @@ public class Copper implements Listener {
             System.out.println("Variable updated successfully.");
 
         } catch (IOException e) {
-            e.printStackTrace();
+            player.sendMessage(ChatColor.YELLOW + e.toString() + ChatColor.RESET);
         }
     }
 }
