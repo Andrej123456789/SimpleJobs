@@ -12,7 +12,7 @@ oxidized_block = 0.06
 [scrape_copper.peaceful]
 blocks_to_do = 100.0
 timeout = 2592000.0                                       # in seconds
-duration = 1.0                                            # in days
+duration = 0.0                                            # in days
 
 [scrape_copper.easy]
 blocks_to_do = 100.0

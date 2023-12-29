@@ -37,6 +37,8 @@ public class Copper implements Listener {
 
     private static final List<Material> OXIDIZED = List.of(Material.OXIDIZED_COPPER, Material.OXIDIZED_CUT_COPPER, Material.OXIDIZED_CUT_COPPER_SLAB, Material.OXIDIZED_CUT_COPPER_SLAB);
 
+    private static final List<Material> AXES = List.of(Material.STONE_AXE, Material.IRON_AXE, Material.GOLDEN_AXE, Material.DIAMOND_AXE, Material.NETHERITE_AXE);
+
     private static final Plugin plugin = JavaPlugin.getProvidingPlugin(SimpleJobs.class);
 
     @EventHandler
@@ -56,7 +58,7 @@ public class Copper implements Listener {
 
         ItemStack hand = event.getItem();
 
-        if (hand == null || hand.getType() != Material.NETHERITE_AXE)
+        if (hand == null || !AXES.contains(hand.getType()))
             return;
 
         String playerPath = plugin.getDataFolder() + "/players/" + player.getName() + ".toml";

@@ -133,6 +133,8 @@ public class Jobs implements CommandExecutor, TabExecutor {
                 jobs.put(args[1] + "_" + args[2], job);
 
                 appendToTOML(sender, jobs, plugin.getDataFolder() + "/players/" + sender.getName() + ".toml");
+                sender.sendMessage(ChatColor.GREEN + "Job" + args[1] + "with difficulty of " + args[2] + " has been accepted!" + ChatColor.RESET);
+
                 break;
 
             case "status":
