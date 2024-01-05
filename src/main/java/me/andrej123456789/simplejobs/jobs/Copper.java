@@ -83,6 +83,11 @@ public class Copper implements Listener {
             return;
         }
 
+        if (!EXPOSED.contains(clicked.getType()) && !WEATHERED.contains(clicked.getType()) &&
+            !OXIDIZED.contains(clicked.getType())) {
+            return;
+        }
+
         double block_price = 0.0;
 
         double current_blocks = 0.0;
