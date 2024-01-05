@@ -7,14 +7,14 @@ libraries:
   - com.moandjiezana.toml:toml4j:0.7.2
 
 commands:
-  jobs_admin:
-      description: Admin command for SimpleJobs plugin
-      usage: '/jobs_admin <arg>'
-      permission: simplejobs.admin
-      permission-message: '&cYou do not have permission to use this command'
-
   jobs:
     description: Main command for SimpleJobs plugin
-    usage: '/jobs <action> <job>'
+    usage: '/jobs <action> [job] [difficulty]'
     permission: simplejobs.jobs
     permission-message: '&cYou do not have permission to use this command'
+
+  staff_salary:
+      description: Admin command for SimpleJobs plugin
+      usage: '/staff_salary'
+      permission: simplejobs.staff_salary
+      permission-message: '&cYou do not have permission to use this command'

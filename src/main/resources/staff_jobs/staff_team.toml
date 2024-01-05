@@ -1,12 +1,12 @@
 
 [staff_team]
-urban_planning_department = 10000
-higher_construction_department = 8000
-lower_construction_department = 7000
-police_plus = 6000
-court = 5000
-citizenship_office = 3000
-police = 2000
-orthodox_patriarch = 1000
-copper_cleaning_manager = 500
-utilities = 500
+urban_planning_department = 8500.0
+higher_construction_department = 8000.0
+lower_construction_department = 7500.0
+police_chief = 7000.0
+police_plus = 6000.0
+court = 5000.0
+citizenship_office = 3000.0
+police = 2000.0
+orthodox_patriarch = 1500.0
+utilities = 1000.0

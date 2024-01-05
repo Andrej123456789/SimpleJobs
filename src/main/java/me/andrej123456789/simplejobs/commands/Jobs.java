@@ -146,13 +146,6 @@ public class Jobs implements CommandExecutor, TabExecutor {
                     String jobPath = plugin.getDataFolder() + "/jobs/" + getJob(acceptedJob) + ".toml";
                     Toml jobToml = new Toml().read(new File(jobPath));
 
-                    Set<String> allKeys = playerToml.toMap().keySet();
-                    List<String> keys = allKeys.stream().toList();
-
-                    /*for (String key : keys) {
-
-                    }*/
-
                     sender.sendMessage(ChatColor.DARK_RED + acceptedJob + ChatColor.RESET);
 
                     sender.sendMessage("Blocks done: " + playerToml.getDouble(acceptedJob + ".blocks_done") +
