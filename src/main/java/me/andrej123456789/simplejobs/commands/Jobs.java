@@ -133,7 +133,36 @@ public class Jobs implements CommandExecutor, TabExecutor {
             }
 
             case "status" -> {
+                String playerPath = plugin.getDataFolder() + "/players/" + sender.getName() + ".toml";
+
+                Toml playerToml = new Toml().read(new File(playerPath));
+
+                Map<String, Object> rootMap = playerToml.toMap();
+
+                Set<String> tableNames = rootMap.keySet();
+                List<String> accepted_jobs = tableNames.stream().toList();
+
+                for (String acceptedJob : accepted_jobs) {
+                    String jobPath = plugin.getDataFolder() + "/jobs/" + getJob(acceptedJob) + ".toml";
+                    Toml jobToml = new Toml().read(new File(jobPath));
+
+                    Set<String> allKeys = playerToml.toMap().keySet();
+                    List<String> keys = allKeys.stream().toList();
+
+                    /*for (String key : keys) {
+
+                    }*/
+
+                    sender.sendMessage(ChatColor.DARK_RED + acceptedJob + ChatColor.RESET);
+
+                    sender.sendMessage("Blocks done: " + playerToml.getDouble(acceptedJob + ".blocks_done") +
+                                        " / " + jobToml.getDouble(getJob(acceptedJob) + "." +
+                                        getDifficulty(acceptedJob) +
+                                        ".blocks_to_do"));
+                    sender.sendMessage("Current price: " + playerToml.getDouble(acceptedJob + ".blocks_done"));
+                }
             }
+
             case "quit" -> {
             }
 
@@ -151,6 +180,40 @@ public class Jobs implements CommandExecutor, TabExecutor {
         }
 
         return new ArrayList<>(); /* null = all player names */
+    }
+
+    public static String getJob(String input) {
+        // Find the index of the first underscore
+        int firstUnderscoreIndex = input.indexOf('_');
+
+        // Check if the first underscore is found
+        if (firstUnderscoreIndex != -1) {
+            // Find the index of the second underscore, starting from the position after the first underscore
+            int secondUnderscoreIndex = input.indexOf('_', firstUnderscoreIndex + 1);
+
+            // Check if the second underscore is found
+            if (secondUnderscoreIndex != -1) {
+                // Extract the substring from the beginning to the second underscore
+                return input.substring(0, secondUnderscoreIndex);
+            } else {
+                System.out.println("Second underscore not found.");
+            }
+        } else {
+            System.out.println("First underscore not found.");
+        }
+
+        return null;
+    }
+
+    private static String getDifficulty(String inputString) {
+        int firstOccurrence = inputString.indexOf('_');
+        int secondOccurrence = inputString.indexOf('_', firstOccurrence + 1);
+
+        if (firstOccurrence != -1 && secondOccurrence != -1) {
+            return inputString.substring(secondOccurrence + 1);
+        } else {
+            return "Second occurrence not found.";
+        }
     }
 
     private static void writeTOML(@NotNull CommandSender sender, Map<String, Map<String, Object>> data, String path) {
