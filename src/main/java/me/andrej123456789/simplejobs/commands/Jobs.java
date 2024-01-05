@@ -84,7 +84,7 @@ public class Jobs implements CommandExecutor, TabExecutor {
         }
 
         switch (args[0]) {
-            case "accept":
+            case "accept" -> {
 
                 /* -------------------- */
                 /*      Get jobs        */
@@ -94,12 +94,10 @@ public class Jobs implements CommandExecutor, TabExecutor {
                     sender.sendMessage(ChatColor.YELLOW + "This subcommand requires (job) argument!" + ChatColor.RESET);
                     return false;
                 }
-
                 ArrayList<String> files = getFiles(plugin.getDataFolder() + "/jobs/");
                 for (int i = 0; i < files.size(); i++) {
                     plugin.getLogger().info(files.get(i));
                 }
-
                 if (!files.contains(args[1])) {
                     sender.sendMessage(ChatColor.YELLOW + "Job not found in `jobs` folder!" + ChatColor.RESET);
                     return true;
@@ -129,27 +127,18 @@ public class Jobs implements CommandExecutor, TabExecutor {
                 job.put("timeout", "");
                 job.put("price", 0.0);
                 job.put("blocks_done", 0.0);
-
                 jobs.put(args[1] + "_" + args[2], job);
-
                 appendToTOML(sender, jobs, plugin.getDataFolder() + "/players/" + sender.getName() + ".toml");
-                sender.sendMessage(ChatColor.GREEN + "Job" + args[1] + "with difficulty of " + args[2] + " has been accepted!" + ChatColor.RESET);
+                sender.sendMessage(ChatColor.GREEN + "Job " + ChatColor.AQUA + args[1] + ChatColor.GREEN + " with difficulty of " + ChatColor.DARK_AQUA + args[2] + ChatColor.GREEN + " has been accepted!" + ChatColor.RESET);
+            }
 
-                break;
+            case "status" -> {
+            }
+            case "quit" -> {
+            }
 
-            case "status":
-                break;
-
-            case "quit":
-                break;
-
-            case "help":
-                sender.sendMessage("Supported arguments: 'accept', 'status', 'quit', 'help'");
-                break;
-
-            default:
-                sender.sendMessage(ChatColor.YELLOW + "Type /jobs help to see list of supported arguments!");
-                break;
+            case "help" -> sender.sendMessage("Supported arguments: 'accept', 'status', 'quit', 'help'");
+            default -> sender.sendMessage(ChatColor.YELLOW + "Type /jobs help to see list of supported arguments!");
         }
 
         return true;

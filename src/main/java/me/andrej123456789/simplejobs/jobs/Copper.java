@@ -67,27 +67,32 @@ public class Copper implements Listener {
         Toml playerToml = new Toml().read(new File(playerPath));
         Toml jobToml = new Toml().read(new File(jobPath));
 
-        String difficulty = "";
+        ArrayList<String> difficulties = new ArrayList<>();
         Map<String, Object> rootMap = playerToml.toMap();
 
         Set<String> tableNames = rootMap.keySet();
         List<String> accepted_jobs = tableNames.stream().toList();
 
-        boolean found_job = false;
         for (String acceptedJob : accepted_jobs) {
             if (acceptedJob.startsWith("scrape_copper")) {
-                found_job = true;
-                difficulty = getDifficulty(acceptedJob);
+                difficulties.add(getDifficulty(acceptedJob));
             }
         }
 
-        if (!found_job) {
+        if (difficulties.isEmpty()) {
             return;
         }
 
         double block_price = 0.0;
-        double current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
-        double current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
+
+        double current_blocks = 0.0;
+        double current_price = 0.0;
+
+        for (String difficulty : difficulties)
+        {
+            current_blocks = playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done");
+            current_price = playerToml.getDouble("scrape_copper_" + difficulty + ".price");
+        }
 
         if (EXPOSED.contains(clicked.getType())) {
             block_price = jobToml.getDouble("scrape_copper.prices.exposed_block");
@@ -101,28 +106,34 @@ public class Copper implements Listener {
             block_price = jobToml.getDouble("scrape_copper.prices.oxidized_block");
         }
 
-        updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
-        updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", current_price + block_price);
+        for (String difficulty : difficulties)
+        {
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", current_blocks + 1);
+            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", current_price + block_price);
+        }
 
-        if (playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done") >= jobToml.getDouble("scrape_copper." + difficulty + ".blocks_to_do")) {
-            DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
-            LocalDateTime now = LocalDateTime.now();
+        for (String difficulty : difficulties)
+        {
+            if (playerToml.getDouble("scrape_copper_" + difficulty + ".blocks_done") >= jobToml.getDouble("scrape_copper." + difficulty + ".blocks_to_do")) {
+                DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
+                LocalDateTime now = LocalDateTime.now();
 
-            LocalDate date1 = LocalDate.parse(playerToml.getString("scrape_copper_" + difficulty + ".started"), dtf);
-            LocalDate date2 = LocalDate.now();
+                LocalDate date1 = LocalDate.parse(playerToml.getString("scrape_copper_" + difficulty + ".started"), dtf);
+                LocalDate date2 = LocalDate.now();
 
-            if (ChronoUnit.DAYS.between(date1, date2) >= jobToml.getDouble("scrape_copper." + difficulty + ".duration")) {
-                updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "started", "");
-                updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "ended", dtf.format(now));
-                updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", 0.0);
+                if (ChronoUnit.DAYS.between(date1, date2) >= jobToml.getDouble("scrape_copper." + difficulty + ".duration")) {
+                    updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "started", "");
+                    updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "ended", dtf.format(now));
+                    updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "price", 0.0);
+                    updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", 0.0);
+
+                    getEconomy().depositPlayer(player, playerToml.getDouble("scrape_copper_" + difficulty + ".price"));
+                    player.sendMessage(ChatColor.GREEN + "Congrats on finished work!" + ChatColor.RESET);
+                }
+
+                player.sendMessage(ChatColor.GREEN + "You finished for today!" + ChatColor.RESET);
                 updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", 0.0);
-
-                getEconomy().depositPlayer(player, playerToml.getDouble("scrape_copper_" + difficulty + ".price"));
-                player.sendMessage(ChatColor.GREEN + "Congrats on finished work!" + ChatColor.RESET);
             }
-
-            player.sendMessage(ChatColor.GREEN + "You finished for today!" + ChatColor.RESET);
-            updateTomlVariable(player, playerPath, "scrape_copper_" + difficulty, "blocks_done", 0.0);
         }
     }
 
